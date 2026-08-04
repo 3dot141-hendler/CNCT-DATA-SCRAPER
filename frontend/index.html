@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNCT Scraper - WebApp Terminal</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/terminal.css">
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <header class="app-header">
+        <div class="brand">
+            <h1>CNCT Scraper</h1>
+            <span class="badge">Snowflake 64-bit + C Engine</span>
+        </div>
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-tab="tab-terminal">Console Terminal</button>
+            <button class="tab-btn" data-tab="tab-data">Dados & Exportação</button>
+        </nav>
+    </header>
+
+    <!-- Main App Container -->
+    <main class="app-container">
+
+        <!-- Aba 1: Console Terminal -->
+        <section id="tab-terminal" class="tab-content active">
+            <div class="dashboard-grid">
+                
+                <!-- Painel de Controle -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>Painel de Controle</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="max-courses">Limite de Cursos para Raspagem:</label>
+                        <input type="number" id="max-courses" class="form-input" value="5" min="1" max="215">
+                    </div>
+
+                    <button id="btn-start-scraper" class="btn-primary" style="width: 100%; margin-top: 1rem;">
+                        Iniciar Raspagem
+                    </button>
+
+                    <div style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-secondary);">
+                        <p><strong>Stack em Execução:</strong></p>
+                        <ul style="margin-left: 1.2rem; margin-top: 0.5rem; line-height: 1.6;">
+                            <li>Python FastAPI (Backend)</li>
+                            <li>Snowflake Generator (IDs 64-bit)</li>
+                            <li>Binário compilado C (uint64_t)</li>
+                            <li>WebSockets (Logs Tempo Real)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Terminal Simulator -->
+                <div class="terminal-wrapper">
+                    <div class="terminal-header">
+                        <div class="terminal-controls">
+                            <span class="control-dot dot-red"></span>
+                            <span class="control-dot dot-yellow"></span>
+                            <span class="control-dot dot-green"></span>
+                        </div>
+                        <div class="terminal-title">cnct-scraper-console@ws-live</div>
+                        <div class="terminal-status">
+                            <span class="status-indicator"></span>
+                            <span id="ws-status-text">Conectando...</span>
+                        </div>
+                    </div>
+                    <div id="terminal-body" class="terminal-body">
+                        <div class="log-line info">[SISTEMA] Aguardando inicio da raspagem...</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Aba 2: Dados & Exportação -->
+        <section id="tab-data" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <span>Arquivos CSV Gerados</span>
+                    <div>
+                        <button id="btn-refresh-data" class="btn-secondary">Atualizar Lista</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                    <a href="/api/data/download/csv_cursos.csv" class="btn-secondary" download>
+                        Baixar csv_cursos.csv
+                    </a>
+                    <a href="/api/data/download/csv_instituicoes.csv" class="btn-secondary" download>
+                        Baixar csv_instituicoes.csv
+                    </a>
+                </div>
+
+                <div id="data-preview-container">
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        Clique em "Atualizar Lista" para visualizar uma amostragem dos dados exportados.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- External JavaScript Imports -->
+    <script src="/static/js/terminal.js"></script>
+    <script src="/static/js/main.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+# Environment variables & secrets
+*.env
+.env
+.env.*
+!.env.example
+
+# Python virtual environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache & build
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE & OS settings
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Dynamic output & runtime logs
+output/
+logs/
+*.log
+*.csv
+
+# C Compiled objects (mantenha apenas a DLL/SO de release se necessário)
+src/c_aggregator/*.o
+src/c_aggregator/*.obj

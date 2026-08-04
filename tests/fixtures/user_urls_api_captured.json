@@ -1,0 +1,193 @@
+[
+  {
+    "url": "https://cnct.mec.gov.br/cnct-api/eixos/",
+    "status": 200,
+    "data": [
+      {
+        "id": 1,
+        "nome": "Eixo de Ambiente e Saúde",
+        "descricao": "Contempla tecnologias consagradas à melhoria da qualidade de vida e ao bem-estar físico, mental e social, à proteção e preservação dos seres vivos e recursos naturais, e ao desenvolvimento e inovação de aparatos tecnológicos de atenção e mitigação de riscos à saúde e ao ambiente, com base em: políticas públicas em saúde, biossegurança, leitura e produção de textos técnicos; ciência, tecnologia e inovação; investigação tecnológica; tecnologias de comunicação e informação; desenvolvimento interpessoal e trabalho em equipe; legislação e normas técnicas; saúde e segurança do trabalho; gestão da qualidade; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+        "imagem": "capa_eixo_ambiente_e_saude.jpg",
+        "linkThumb": "thumb_eixo_ambiente_e_saude.jpg"
+      },
+      {
+        "id": 2,
+        "nome": "Eixo de Controle e Processos Industriais",
+        "descricao": "Contempla tecnologias de apoio à infraestrutura e aos processos mecânicos, elétricos e eletroeletrônicos envolvidos na manutenção de máquinas navais, industriais ou de locomoção; na transformação metalmecânica de partes de máquinas, equipamentos, veículos, materiais de transporte, e na automatização de mecanismos, medições e correções em processos produtivos, com base em: leitura e produção de textos técnicos; estatística e raciocínio lógico; ciência, tecnologia e inovação; investigação tecnológica; tecnologias de comunicação e informação; desenvolvimento interpessoal; legislação; normas técnicas; saúde e segurança do trabalho; gestão da qualidade e produtividade; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+        "imagem": "capa_eixo_controle_e_processos_industriais.jpg",
+        "linkThumb": "thumb_eixo_controle_e_processos_industriais.jpg"
+      },
+      {
+        "id": 3,
+        "nome": "Eixo de Desenvolvimento Educacional e Social",
+        "descricao": "Compreende tecnologias de apoio às atividades educativas e sociais voltadas à inclusão social e educacional, ao respeito às diferenças culturais, à respeitosa convivência comunitária, à preservação de patrimônios e à melhoria da qualidade de vida, com base em:  leitura e produção de textos técnicos; estatística e raciocínio lógico; ciência e tecnologia; tecnologias sociais; empreendedorismo; cooperativismo e associativismo; tecnologias de comunicação e informação; desenvolvimento interpessoal; legislação e políticas públicas; normas técnicas; saúde e segurança do trabalho; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+        "imagem": "capa_eixo_desenvolvimento_educacional_e_social.jpg",
+        "linkThumb": "thumb_eixo_desenvolvimento_educacional_e_social.jpg"
+      },
+      {
+        "id": 4,
+        "nome": "Eixo de Gestão e Negócios",
+        "descricao": "Compreende tecnologias de suporte e de melhoria da organização da produção e de trabalho de empreendimentos nas suas rotinas administrativas de comercialização, controle contábil, gestão da qualidade, gestão de pessoas, gestão financeira, logística e marketing, com base em:  e produção de textos técnicos; à estatística e raciocínio lógico; às línguas estrangeiras; à ciência e tecnologia; às tecnologias sociais e empreendedorismo; à prospecção mercadológica e marketing; às tecnologias de comunicação e informação; ao desenvolvimento interpessoal; à legislação; às normas técnicas; à saúde e segurança do trabalho; à responsabilidade e sustentabilidade social e ambiental; à qualidade de vida; e à ética profissional.",
+        "imagem": "capa_eixo_gestao_e_negocios.jpg",
+        "linkThumb": "thumb_eixo_gestao_e_negocios.jpg"
+      },
+      {
+        "id": 5,
+        "nome": "Eixo de Informação e Comunicação",
+        "descricao": "Compreende tecnologias empregadas em infraestruturas; protocolos destinados ao processamento e administração de dados e informações; projetos gráficos para aplicações computacionais; e na comutação, transmissão e recepção de dados, com base em: leitura e produção de textos técnicos; estatística e raciocínio lógico; ciência, tecnologia e inovação; investigação tecnológica; empreendedorismo; desenvolvimento interpessoal; legislação; normas técnicas; saúde e segurança do trabalho; gestão da qualidade; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+        "imagem": "capa_eixo_informacao_e_comunicacao.jpg",
+        "linkThumb": "thumb_eixo_informacao_e_comunicacao.jpg"
+      },
+      {
+        "id": 6,
+        "nome": "Eixo de Infraestrutura",
+        "descricao": "Compreende empregadas em projetos de construção de obras civis, topografia, geotécnica, hidráulica, recursos hídricos, saneamento, transporte de pessoas e bens e controle de trânsito e tráfego, com base em: leitura e produção de textos técnicos; estatística e raciocínio lógico; desenho técnico; ciência, tecnologia e inovação; investigação tecnológica; empreendedorismo; tecnologias de comunicação e informação; desenvolvimento interpessoal; legislação; normas técnicas; saúde e segurança do trabalho; gestão da qualidade e produtividade; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+        "imagem": "capa_eixo_infraestrutura.jpg",
+        "linkThumb": "thumb_eixo_infraestrutura.jpg"
+      },
+      {
+        "id": 7,
+        "nome": "Eixo de Produção Alimentícia",
+        "descricao": "Compreende tecnologias de melhoria de máquinas e implementos; de controle de insumos, produtos, padrões sanitários e de qualidade; e de gerenciamento de resíduos empregadas no beneﬁciamento de produtos de origem vegetal e animal e na sua transformação em alimentos e bebidas, com base em: leitura e produção de textos técnicos; raciocínio lógico; ciência, tecnologia e inovação; investigação tecnológica; tecnologias sociais; empreendedorismo; cooperativismo e associativismo; prospecção mercadológica e marketing; tecnologias de comunicação e informação; desenvolvimento interpessoal; legislação; normas técnicas; saúde e segurança do trabalho; gestão da qualidade e produtividade; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+        "imagem": "capa_eixo_producao_alimenticia.jpg",
+        "linkThumb": "thumb_eixo_producao_alimenticia.jpg"
+      },
+      {
+        "id": 8,
+        "nome": "Eixo de Produção Cultural e Design",
+        "descricao": "Compreende tecnologias de produção, conservação, difusão, performance e gerenciamento de bens culturais materiais e imateriais, voltadas ao desenvolvimento da economia criativa e da produção cultural em seus vários segmentos, espaços e meios de criação e de fruição artística, com base em: leitura e produção de textos técnicos; raciocínio lógico e estético; ciência e tecnologia; tecnologias sociais; empreendedorismo; cooperativismo e associativismo; prospecção mercadológica e marketing; tecnologias de comunicação e informação; desenvolvimento interpessoal; legislação e políticas públicas; normas técnicas; saúde e segurança do trabalho; gestão da qualidade; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+        "imagem": "capa_eixo_producao_cultural_e_design.jpg",
+        "linkThumb": "thumb_eixo_producao_cultural_e_design.jpg"
+      },
+      {
+        "id": 9,
+        "nome": "Eixo de Produção Industrial",
+        "descricao": "Compreende tecnologias envolvidas nos equipamentos, sistemas e processos físico-químicos de transformação de matérias-primas e substâncias, integrantes de linhas de produção, com base em: leitura e produção de textos técnicos; raciocínio lógico; ciência, tecnologia e inovação; investigação tecnológica; empreendedorismo; cooperativismo e associativismo; tecnologias de comunicação e informação; desenvolvimento interpessoal; legislação; normas técnicas; saúde e segurança do trabalho; gestão da qualidade e produtividade; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+        "imagem": "capa_eixo_producao_industrial.jpg",
+        "linkThumb": "thumb_eixo_producao_industrial.jpg"
+      },
+      {
+        "id": 10,
+        "nome": "Eixo de Recursos Naturais",
+        "descricao": "Compreende tecnologias de prospecção, avaliação técnica e econômica, planejamento, extração e cultivo de recursos naturais considerando os sistemas e elos das cadeias de produção animal, vegetal e mineral, com base em: leitura e produção de textos técnicos; raciocínio lógico; ciência, tecnologia e inovação; investigação tecnológica; tecnologias sociais; empreendedorismo; cooperativismo e associativismo; tecnologias de comunicação e informação; desenvolvimento interpessoal; legislação e políticas públicas; normas técnicas; saúde e segurança do trabalho; gestão da qualidade; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+        "imagem": "capa_eixo_recursos_naturais.jpg",
+        "linkThumb": "thumb_eixo_recursos_naturais.jpg"
+      },
+      {
+        "id": 11,
+        "nome": "Eixo de Segurança",
+        "descricao": "Compreende tecnologias de controle e eliminação de acidentes e riscos à saúde humana e de defesa, resguardo e vigilância de patrimônios, empregadas na segurança pública e privada, na defesa social e civil, na segurança do trabalho e em ações de contra incêndio, com base em: leitura e produção de textos técnicos; raciocínio lógico; ciência e tecnologia e inovação; empreendedorismo; tecnologias de comunicação e informação; desenvolvimento interpessoal; legislação; normas técnicas; saúde e segurança do trabalho; cidadania e direitos humanos; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+        "imagem": "capa_eixo_seguranca.jpg",
+        "linkThumb": "thumb_eixo_seguranca.jpg"
+      },
+      {
+        "id": 12,
+        "nome": "Eixo de Turismo, Hospitalidade e Lazer",
+        "descricao": "Compreende tecnologias de planejamento, organização, supervisão, operação e avaliação do atendimento e do acolhimento em atividades de agenciamento e guiamento, hospedagem, gastronomia, eventos e lazer, com base em: leitura e produção de textos técnicos; raciocínio lógico; historicidade e cultura; línguas estrangeiras; ciência, tecnologia e inovação; tecnologias sociais; empreendedorismo; cooperativismo e associativismo; prospecção mercadológica e marketing; tecnologias de comunicação e informação; desenvolvimento interpessoal; legislação; normas técnicas; saúde e segurança do trabalho; gestão da qualidade; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; ética profissional.",
+        "imagem": "capa_eixo_turismo_hospitalidade_e_lazer.jpg",
+        "linkThumb": "thumb_eixo_turismo_hospitalidade_e_lazer.jpg"
+      },
+      {
+        "id": 13,
+        "nome": "Eixo Militar",
+        "descricao": "Compreende tecnologias de condução das atividades militares, destinadas ao cumprimento da missão constitucional das Forças Armadas – Marinha do Brasil, Aeronáutica e Exército – de defesa da Pátria e de garantia dos poderes constitucionais, da lei e da ordem, com base em: leitura e produção de textos técnicos; estatística e raciocínio lógico; ciência e tecnologia; segurança e defesa; civismo; tecnologias de comunicação e informação; desenvolvimento interpessoal; legislação; normas técnicas; saúde e segurança do trabalho; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional. O acesso aos cursos requer o ingresso na carreira militar mediante concurso público.",
+        "imagem": "capa_eixo_militar.jpg",
+        "linkThumb": "thumb_eixo_militar.jpg"
+      }
+    ]
+  },
+  {
+    "url": "https://cnct.mec.gov.br/cnct-api/areas/1/areas-tecnologicas",
+    "status": 200,
+    "data": [
+      {
+        "id": 13,
+        "nome": "Gestão e Promoção da Saúde e Bem-Estar",
+        "descricao": "Distingue-se por tecnologias e ações destinadas à organização, administração e coordenação de atividades de documentação, registro e estatística de saúde; de fomento da melhoria da qualidade de vida da população com base em parâmetros e conhecimentos de múltiplos determinantes e condicionantes do processo saúde-doença; e de promoção da redução de riscos à saúde coletiva e individual nas diversas fases do ciclo de vida.",
+        "eixoTecnologicoCnctId": 1
+      },
+      {
+        "id": 28,
+        "nome": "Proteção e Reabilitação de Ecossistemas",
+        "descricao": "Distingue-se por tecnologias e ações destinadas ao cuidado, restauração e aproveitamento da natureza, garantindo a manutenção do equilíbrio dinâmico dos componentes bióticos e abióticos de ecossistemas e sua sustentabilidade em relação às mudanças nas características ambientais.",
+        "eixoTecnologicoCnctId": 1
+      }
+    ]
+  },
+  {
+    "url": "https://cnct.mec.gov.br/cnct-api/cursos/1",
+    "status": 200,
+    "data": {
+      "id": 1,
+      "areasTecnologicas": [
+        {
+          "id": 13,
+          "nome": "Gestão e Promoção da Saúde e Bem-Estar",
+          "descricao": "Distingue-se por tecnologias e ações destinadas à organização, administração e coordenação de atividades de documentação, registro e estatística de saúde; de fomento da melhoria da qualidade de vida da população com base em parâmetros e conhecimentos de múltiplos determinantes e condicionantes do processo saúde-doença; e de promoção da redução de riscos à saúde coletiva e individual nas diversas fases do ciclo de vida.",
+          "eixoTecnologicoCnctId": 1
+        }
+      ],
+      "nome": "Técnico em Agente Comunitário de Saúde",
+      "cargaHoraria": "** 1200 horas\n\nO curso dura, em média, 1 ano e meio.\n\nO curso, na modalidade presencial, poderá prever até 20% da sua carga horária total em atividades não presenciais.\n\nO curso não poderá ser realizado na modalidade EaD, conforme disposto na Lei nº 11.350, de 5 de outubro de 2006, e suas alterações.\n\nA instituição, ofertante do curso, poderá desenvolver a carga horária em regime de alternância, com períodos de estudos na escola e outros períodos no campo/local de trabalho.\n\nAlém da carga horária mínima prevista, o curso poderá ter estágio curricular supervisionado obrigatório, conforme legislações/normativas específicas, ou a critério do projeto pedagógico da instituição ofertante do curso.",
+      "preRequisito": "Para ingresso no Curso Técnico Subsequente, o estudante deverá ter concluído o Ensino Médio.\nPara ingresso no Curso Técnico Concomitante, o estudante deverá estar cursando o Ensino Médio. \nPara ingresso no Curso Técnico Integrado ao Ensino Médio, o estudante deverá ter concluído o Ensino Fundamental.\nPara ingresso no Curso Técnico Integrado à Educação de Jovens e Adultos, o estudante deverá ter concluído o Ensino Fundamental.",
+      "perfilProfissional": "** O Técnico em Agente Comunitário de Saúde será habilitado para:\n\n* Orientar e acompanhar, sob a supervisão de profissional de nível superior, indivíduos, suas famílias e a população em seu território, levando em conta a interação com o processo saúde-doença no território.\n* Identificar e atuar nos múltiplos determinantes e condicionantes do processo saúde e doença, para a promoção da saúde e redução de riscos à saúde individual e da coletividade.\n* Realizar o mapeamento e o cadastramento de dados sociais, demográficos e de saúde, para contribuir com a produção de informações e a construção de revisão contínua do plano de ação em saúde para os territórios.\n* Desenvolver suas atividades norteadas pelas diretrizes, pelos princípios e estrutura organizacional do SUS, bem como a partir dos referenciais éticos e políticos da Educação Popular em Saúde.\n* Promover a comunicação entre equipe multidisciplinar (Equipe de Saúde da Família), unidade de saúde, autoridades e comunidade.\n* Promover a mobilização comunitária, ações educativas e incentivar as atividades comunitárias, promovendo a integração entre a equipe de saúde e a comunidade.\n* Promover ações nas áreas de vigilância em saúde e ambiental.\n* Acompanhar e orientar, por meio de visita domiciliar estabelecidas no planejamento das equipes, as pessoas em situação de vulnerabilidade social e portadoras de doenças crônicas e agravos que necessitam de maior número de visitas, estimulando o autocuidado e a prevenção da exposição a fatores de riscos, realizando procedimentos específicos nos casos indicados pela equipe ou encaminhando quando necessário para a unidade de saúde de referência.\n\n** Para a atuação como Técnico em Agente Comunitário de Saúde, são fundamentais:\n\n* Conhecimentos das políticas públicas de saúde e compreensão de sua atuação profissional frente às diretrizes, princípios e estrutura organizacional do Sistema Único de Saúde (SUS).\n* Conhecimentos referentes ao  âmbito da promoção da saúde, prevenção de agravos frequentes na atenção primária, dirigidas a indivíduos, famílias, comunidades e população.\n* Conhecimentos referentes à educação popular em saúde, à promoção da saúde dos indivíduos nos diferentes ciclos de vida, suas famílias e sua comunidade e dos atributos derivados da atenção primária da saúde.\n* Conhecimentos relativos ao âmbito da promoção, da prevenção e do monitoramento das situações de risco no âmbito da Vigilância em Saúde.\n* Conhecimentos referentes ao trabalho em equipe e interdisciplinar, a comunicação em saúde, ao registro e informação em saúde.\n* Conhecimentos e saberes relacionados aos princípios das técnicas aplicadas na área, sempre pautados numa postura humana e ética.\n* Atualização e aperfeiçoamento profissional por meio da Educação Continuada.\n* Conhecimentos e saberes relacionados à Política de Inclusão e ao Atendimento Educacional Especializado.",
+      "itinerarios": "** Sugestões de qualificação profissional com certificações intermediárias, no curso técnico, considerando ocupações previstas na CBO:\n\n* Agente Comunitário de Saúde\n\n** Sugestões de formação continuada em cursos de especialização técnica (pós-técnico):\n\n* Especialização Técnica em Epidemiologia Estatística em Saúde\n* Especialização Técnica em Políticas Públicas de Saúde da Família com Ênfase nas Linhas do Cuidado\n* Especialização Técnica em Saúde da Família\n* Especialização Técnica em Saúde do Idoso\n* Especialização Técnica em Saúde Materno/Infantil\n* Especialização Técnica em Saúde Mental\n* Especialização Técnica em Vigilância à Saúde do Trabalhador\n* Especialização Técnica em Vigilância em Saúde\n\n** Sugestões de verticalização para cursos de graduação (Curso Superior de Tecnologia, bacharelado e licenciatura):\n\n* Bacharelado em Enfermagem\n* Bacharelado em Medicina\n* Bacharelado em Nutrição\n* Bacharelado em Psicologia\n* Bacharelado em Serviço Social",
+      "campoAtuacao": "** Locais e ambientes de trabalho:\n \n* Sistema Único de Saúde (SUS)",
+      "ocupacoesCbo": "3222-55 - Técnico em Agente Comunitário de Saúde \n",
+      "infraestruturaMinima": "Biblioteca com acervo físico ou virtual específico e atualizado\nLaboratório multidisciplinar\nLaboratório de informática com acesso à internet\nSalas para práticas pedagógicas participativas e ativas",
+      "imagem": "agente_comunitario_de_saude.jpg",
+      "cursoLegislacaoCncts": [
+        {
+          "legislacaoCnct": {
+            "nome": "Lei nº 11.350, de 5 de outubro de 2006",
+            "descricao": "Regulamenta o § 5º do art. 198 da Constituição Federal, dispõe sobre o aproveitamento de pessoal amparado pelo parágrafo único do art. 2º da Emenda Constitucional nº 51, de 14 de fevereiro de 2006, e dá outras providências.",
+            "link": "http://www.planalto.gov.br/ccivil_03/_Ato2004-2006/2006/Lei/L11350.htm",
+            "portal": "",
+            "mensagem": ""
+          }
+        },
+        {
+          "legislacaoCnct": {
+            "nome": "Lei nº 13.595, de 5 de janeiro de 2018",
+            "descricao": "Altera a Lei nº 11.350, de 5 de outubro de 2006, para dispor sobre a reformulação das atribuições, a jornada e as condições de trabalho, o grau de formação profissional, os cursos de formação técnica e continuada e a indenização de transporte dos profissionais Agentes Comunitários de Saúde e Agentes de Combate às Endemias.",
+            "link": "http://www.planalto.gov.br/ccivil_03/_Ato2015-2018/2018/Lei/L13595.htm",
+            "portal": "",
+            "mensagem": ""
+          }
+        },
+        {
+          "legislacaoCnct": {
+            "nome": "Decreto nº 3.189, de 4 de outubro de 1999",
+            "descricao": "Fixa diretrizes para o exercício da atividade de Agente Comunitário de Saúde (ACS), e dá outras providências.",
+            "link": "http://www.planalto.gov.br/ccivil_03/decreto/D3189.htm",
+            "portal": "",
+            "mensagem": ""
+          }
+        },
+        {
+          "legislacaoCnct": {
+            "nome": "Portaria MS nº 2.436, de 21 de setembro de 2017",
+            "descricao": "Aprova a Política Nacional de Atenção Básica, estabelecendo a revisão de diretrizes para a organização da Atenção Básica, no âmbito do Sistema Único de Saúde (SUS).",
+            "link": "https://bvsms.saude.gov.br/bvs/saudelegis/gm/2017/prt2436_22_09_2017.html",
+            "portal": "",
+            "mensagem": ""
+          }
+        }
+      ],
+      "catalogoCnctId": 1,
+      "eixoTecnologicoCnctId": 1,
+      "cursosMudaramNomeCncts": []
+    }
+  },
+  {
+    "url": "https://cnct.mec.gov.br/cnct-api/eixos/1",
+    "status": 200,
+    "data": {
+      "id": 1,
+      "nome": "Eixo de Ambiente e Saúde",
+      "descricao": "Contempla tecnologias consagradas à melhoria da qualidade de vida e ao bem-estar físico, mental e social, à proteção e preservação dos seres vivos e recursos naturais, e ao desenvolvimento e inovação de aparatos tecnológicos de atenção e mitigação de riscos à saúde e ao ambiente, com base em: políticas públicas em saúde, biossegurança, leitura e produção de textos técnicos; ciência, tecnologia e inovação; investigação tecnológica; tecnologias de comunicação e informação; desenvolvimento interpessoal e trabalho em equipe; legislação e normas técnicas; saúde e segurança do trabalho; gestão da qualidade; responsabilidade e sustentabilidade social e ambiental; qualidade de vida; e ética profissional.",
+      "imagem": "capa_eixo_ambiente_e_saude.jpg",
+      "linkThumb": "thumb_eixo_ambiente_e_saude.jpg"
+    }
+  }
+]
