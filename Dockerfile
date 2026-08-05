@@ -1,6 +1,9 @@
 FROM python:3.11-slim
 
-# Instala dependências de sistema (gcc/make para o compilador C e ferramentas auxiliares)
+ENV PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Instala dependências de sistema (gcc, make, curl)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     make \
@@ -13,17 +16,17 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Instala os navegadores e dependências de sistema do Playwright (Headless Chromium)
-RUN playwright install --with-deps chromium
+# Instala as dependências do sistema operacional para o Playwright e baixa o Chromium
+RUN playwright install-deps chromium && playwright install chromium
 
-# Copia o código-fonte do projeto
+# Copia todo o código-fonte
 COPY . .
 
-# Compila o módulo C de agregação
-RUN make clean && make
+# Compila o executável C de agregação
+RUN gcc -O3 -Wall src/c_aggregator/aggregator.c -o src/c_aggregator/aggregator
 
 # Expõe a porta do FastAPI
 EXPOSE 8000
 
-# Executa o servidor uvicorn ouvindo na porta 8000
+# Executa o servidor uvicorn
 CMD ["uvicorn", "src.backend.app:app", "--host", "0.0.0.0", "--port", "8000"]
