@@ -65,24 +65,14 @@ CNCT_SCRAPER/
 
 ---
 
-## Fase 1: Script de Descoberta (Sniffer de Rede)
+## Fase 1: Instalar as dependencias necessarias:
 
-### Descricao
-O script [discovery_sniffer.py](file:///c:/Users/ResTIC55/PythonProject/CNCT_SCRAPER/discovery_sniffer.py) utiliza o Playwright em modo headful para interceptar todo o trafego XHR e Fetch durante a navegacao manual no portal do CNCT.
 
-### Como Executar
-1. Instalar as dependencias necessarias:
 ```bash
 pip install playwright
 playwright install chromium
 ```
-2. Executar o script de inspeção:
-```bash
-python discovery_sniffer.py
-```
-3. Navegue manualmente pelas paginas do site. Os dados serao gravados automaticamente no diretorio `logs/`.
 
----
 
 ## Fase 2: Arquitetura Detalhada e Integracao
 
