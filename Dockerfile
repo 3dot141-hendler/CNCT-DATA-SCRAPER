@@ -4,8 +4,9 @@ ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
-# Instala dependências nativas Linux/ARM64 (gcc, make, curl, navegador Chromium)
+# Instala ferramentas de compilação C completas (build-essential/libc6-dev para stdio.h), make, curl e chromium
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     gcc \
     make \
     curl \
