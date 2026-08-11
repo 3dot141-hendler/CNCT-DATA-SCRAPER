@@ -9,14 +9,28 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 
 router = APIRouter(prefix="/api/data", tags=["Data"])
-OUTPUT_DIR = Path("output")
+def get_csv_file_path(filename: str) -> Path:
+    """
+    Localiza o arquivo CSV mais recente em output/ ou src/output/.
+    """
+    candidates = [
+        Path("output") / filename,
+        Path("src") / "output" / filename,
+        Path(__file__).parent.parent.parent / "output" / filename,
+        Path(__file__).parent.parent / "output" / filename
+    ]
+    for c in candidates:
+        if c.exists() and c.is_file():
+            return c
+    return Path("output") / filename
+
 
 @router.get("/cursos")
 def get_cursos_sample(limit: int = 10):
     """
     Retorna uma amostragem dos cursos raspados.
     """
-    csv_file = OUTPUT_DIR / "csv_cursos.csv"
+    csv_file = get_csv_file_path("csv_cursos.csv")
     if not csv_file.exists():
         return {"total": 0, "cursos": []}
 
@@ -35,7 +49,7 @@ def get_instituicoes_sample(limit: int = 10):
     """
     Retorna uma amostragem das instituicoes agregadas.
     """
-    csv_file = OUTPUT_DIR / "csv_instituicoes.csv"
+    csv_file = get_csv_file_path("csv_instituicoes.csv")
     if not csv_file.exists():
         return {"total": 0, "instituicoes": []}
 
@@ -57,8 +71,9 @@ def download_csv(filename: str):
     if not filename.endswith(".csv") or "/" in filename or "\\" in filename:
         raise HTTPException(status_code=400, detail="Nome de arquivo inválido.")
 
-    file_path = OUTPUT_DIR / filename
+    file_path = get_csv_file_path(filename)
     if not file_path.exists() or not file_path.is_file():
         raise HTTPException(status_code=404, detail=f"O arquivo {filename} não foi encontrado.")
 
     return FileResponse(path=file_path, filename=filename, media_type="text/csv")
+
