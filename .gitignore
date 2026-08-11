@@ -36,6 +36,10 @@ contexto_agent/
 tests/
 *.log
 *.csv
+!output/csv_instituicoes.csv
+!output/csv_cursos.csv
+!src/output/csv_instituicoes.csv
+!src/output/csv_cursos.csv
 
 # Root legacy update files (moved to DOCS/updates/)
 updates_01.md

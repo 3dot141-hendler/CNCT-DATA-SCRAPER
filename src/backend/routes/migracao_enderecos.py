@@ -42,6 +42,26 @@ def get_authenticated_user_payload(request: Request) -> Dict[str, Any]:
     return payload
 
 
+def get_latest_csv_path(filename: str) -> Optional[str]:
+    """
+    Busca o arquivo CSV mais recente nos diretórios de output do projeto (raiz ou src/output).
+    """
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    candidates = [
+        os.path.join(project_root, "output", filename),
+        os.path.join(project_root, "src", "output", filename),
+        os.path.join(os.path.dirname(__file__), "..", "..", "output", filename),
+        os.path.join(os.path.dirname(__file__), "..", "..", "..", "output", filename),
+        os.path.join("output", filename),
+        os.path.join("src", "output", filename)
+    ]
+    valid_files = [os.path.abspath(p) for p in candidates if os.path.exists(p)]
+    if not valid_files:
+        return None
+    valid_files.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+    return valid_files[0]
+
+
 @router.post("/preview-amostragem")
 async def preview_amostragem(request: Request, body: Dict[str, Any] = Body(...)):
     """
@@ -52,9 +72,9 @@ async def preview_amostragem(request: Request, body: Dict[str, Any] = Body(...))
     items = body.get("registros", [])
 
     if not items:
-        # Se não enviado no body, tenta carregar o arquivo CSV padrão do microserviço
-        csv_path = os.path.join(os.path.dirname(__file__), "..", "..", "output", "csv_instituicoes.csv")
-        if os.path.exists(csv_path):
+        # Se não enviado no body, busca o arquivo CSV mais recente no sistema
+        csv_path = get_latest_csv_path("csv_instituicoes.csv")
+        if csv_path and os.path.exists(csv_path):
             import csv
             with open(csv_path, mode="r", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=";")
@@ -327,8 +347,8 @@ async def status_banco(request: Request):
 
     return {
         "status": "sucesso",
-        "total_instituicoes": total_instituicoes if total_instituicoes > 0 else 16367,
-        "total_cursos": total_cursos if total_cursos > 0 else 4892,
+        "total_instituicoes": total_instituicoes,
+        "total_cursos": total_cursos,
         "ultima_atualizacao": ultima_atualizacao
     }
 
@@ -467,8 +487,8 @@ async def preview_cursos(request: Request, body: Dict[str, Any] = Body(default={
     items = body.get("registros", [])
 
     if not items:
-        csv_path = os.path.join(os.path.dirname(__file__), "..", "..", "output", "csv_cursos.csv")
-        if os.path.exists(csv_path):
+        csv_path = get_latest_csv_path("csv_cursos.csv")
+        if csv_path and os.path.exists(csv_path):
             import csv
             with open(csv_path, mode="r", encoding="utf-8") as f:
                 reader = csv.DictReader(f, delimiter=";")

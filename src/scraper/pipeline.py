@@ -6,6 +6,7 @@ import os
 import csv
 import json
 import time
+import shutil
 from pathlib import Path
 from typing import Dict, List, Any
 from src.scraper.client import CNCTApiClient
@@ -17,8 +18,13 @@ from src.backend.websocket_manager import ws_manager
 OUTPUT_DIR = Path("output")
 OUTPUT_DIR.mkdir(exist_ok=True)
 
+SRC_OUTPUT_DIR = Path(__file__).parent.parent / "output"
+SRC_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 CSV_CURSOS = OUTPUT_DIR / "csv_cursos.csv"
 CSV_INSTITUICOES = OUTPUT_DIR / "csv_instituicoes.csv"
+SRC_CSV_CURSOS = SRC_OUTPUT_DIR / "csv_cursos.csv"
+SRC_CSV_INSTITUICOES = SRC_OUTPUT_DIR / "csv_instituicoes.csv"
 
 TEMP_INST_CSV = OUTPUT_DIR / "temp_instituicoes_raw.csv"
 TEMP_REL_CSV = OUTPUT_DIR / "temp_relacoes_raw.csv"
@@ -113,10 +119,14 @@ class ScraperPipeline:
             timestamped_cursos = OUTPUT_DIR / f"csv_cursos_{timestamp}.csv"
             timestamped_inst = OUTPUT_DIR / f"csv_instituicoes_{timestamp}.csv"
 
-            # 3. Exportar csv_cursos_{timestamp}.csv e atualizar csv_cursos.csv
+            # 3. Exportar csv_cursos_{timestamp}.csv e atualizar csv_cursos.csv em ambos os caminhos
             self.log(f"Exportando {len(courses_data)} cursos coletados para '{timestamped_cursos.name}'...")
             self._save_courses_csv(courses_data, timestamped_cursos)
             shutil.copy2(timestamped_cursos, CSV_CURSOS)
+            try:
+                shutil.copy2(timestamped_cursos, SRC_CSV_CURSOS)
+            except Exception:
+                pass
 
             # 4. Preparar arquivos temporarios para o Agregador em C
             self.log("Preparando arquivos temporarios de instituicoes para o Agregador C...")
@@ -129,6 +139,10 @@ class ScraperPipeline:
 
             if c_success:
                 shutil.copy2(timestamped_inst, CSV_INSTITUICOES)
+                try:
+                    shutil.copy2(timestamped_inst, SRC_CSV_INSTITUICOES)
+                except Exception:
+                    pass
                 self.log(f"Sucesso! Arquivos finais gerados com timestamp '{timestamped_inst.name}' e 'csv_instituicoes.csv'.", "SUCESSO")
 
             summary = {
