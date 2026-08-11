@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNCT Updater - Migração e Sincronização de Endereços</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    
+    <!-- Tabulator.js Dark Theme CSS -->
+    <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator_midnight.min.css" rel="stylesheet">
+
+    <style>
+        .page-header { margin-bottom: 2rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.5rem 0; }
+        .page-subtitle { color: #94a3b8; font-size: 0.95rem; margin: 0; }
+
+        /* Estilização Customizada do Tabulator para combinar com o Esteio Conecta */
+        .tabulator {
+            background-color: #0f172a !important;
+            border: 1px solid #334155 !important;
+            border-radius: 8px !important;
+            font-size: 0.85rem !important;
+        }
+        .tabulator .tabulator-header {
+            background-color: #1e293b !important;
+            border-bottom: 2px solid #334155 !important;
+            color: #38bdf8 !important;
+            font-weight: 600 !important;
+        }
+        .tabulator .tabulator-header .tabulator-col {
+            background-color: #1e293b !important;
+            border-right: 1px solid #334155 !important;
+        }
+        .tabulator .tabulator-row {
+            background-color: #0f172a !important;
+            color: #cbd5e1 !important;
+            border-bottom: 1px solid #1e293b !important;
+        }
+        .tabulator .tabulator-row:nth-child(even) {
+            background-color: #162032 !important;
+        }
+        .tabulator .tabulator-row:hover {
+            background-color: rgba(56, 189, 248, 0.15) !important;
+        }
+        .tabulator .tabulator-footer {
+            background-color: #1e293b !important;
+            border-top: 1px solid #334155 !important;
+            color: #cbd5e1 !important;
+        }
+        .tabulator .tabulator-page {
+            background: #0f172a !important;
+            border: 1px solid #334155 !important;
+            color: #38bdf8 !important;
+            border-radius: 4px !important;
+        }
+        .tabulator .tabulator-page.active {
+            background: #0284c7 !important;
+            color: #ffffff !important;
+        }
+
+        .badge-novo { background: #059669; color: #ecfdf5; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600; font-size: 0.75rem; }
+        .badge-alterado { background: #d97706; color: #fffbeb; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600; font-size: 0.75rem; }
+        .badge-inativado { background: #dc2626; color: #fef2f2; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600; font-size: 0.75rem; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; text-align: center; }
+        .stat-val { font-size: 2rem; font-weight: 800; margin-bottom: 0.25rem; }
+        .stat-label { color: #94a3b8; font-size: 0.85rem; }
+
+        .diagnosis-card { background: #0f172a; border: 1px solid #38bdf8; border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; font-family: monospace; font-size: 0.85rem; color: #38bdf8; white-space: pre; overflow-x: auto; line-height: 1.5; }
+
+        /* Modal styling */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); z-index: 999; justify-content: center; align-items: center; }
+        .modal-card { background: #1e293b; border: 1px solid #475569; border-radius: 12px; padding: 2rem; width: 100%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+        .modal-title { font-size: 1.25rem; color: #f8fafc; font-weight: 700; margin-bottom: 1rem; }
+        .audit-info { background: #0f172a; padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.8rem; color: #94a3b8; margin-bottom: 1.25rem; border-left: 3px solid #38bdf8; }
+
+        /* Real-time Progress Bar */
+        .progress-bar-wrapper { margin-top: 1.5rem; background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; display: none; }
+        .progress-track { background: #334155; border-radius: 6px; height: 16px; overflow: hidden; position: relative; margin-bottom: 0.5rem; }
+        .progress-fill { background: linear-gradient(90deg, #0284c7, #38bdf8); height: 100%; width: 0%; transition: width 0.1s linear; }
+        .progress-meta { display: flex; justify-content: space-between; font-size: 0.85rem; color: #cbd5e1; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="brand">
+            <h1>CNCT Updater</h1>
+            <span class="badge">Migração & Parsing C </span>
+        </div>
+        <script>
+            function navigateWithToken(path) {
+                window.location.href = path + window.location.search;
+            }
+        </script>
+        <nav class="nav-tabs">
+            <button class="tab-btn" onclick="navigateWithToken('/')">Console Terminal</button>
+            <button class="tab-btn active">Sincronização do Banco de dados</button>
+        </nav>
+    </header>
+
+    <main class="app-container">
+        
+        <div class="page-header">
+            <h1 class="page-title">Painel de Migração, Higienização e Auditoria</h1>
+            <p class="page-subtitle">Desagregação de endereços em C nativo, comparação de estado (diff), inativação (ativo=0) e streaming com auditoria IP.</p>
+        </div>
+
+        <!-- Cards de Estado Atual do Banco MySQL -->
+        <div class="stats-grid" style="margin-bottom: 1.5rem;">
+            <div class="stat-card">
+                <div id="db-stat-inst" class="stat-val" style="color: #38bdf8;">--</div>
+                <div class="stat-label">Instituições no MySQL (VPS)</div>
+            </div>
+            <div class="stat-card">
+                <div id="db-stat-cursos" class="stat-val" style="color: #34d399;">--</div>
+                <div class="stat-label">Cursos Únicos Registrados</div>
+            </div>
+            <div class="stat-card">
+                <div id="db-stat-updated" class="stat-val" style="color: #fbbf24; font-size: 1.1rem; font-family: monospace; padding-top: 0.5rem;">Carregando...</div>
+                <div class="stat-label">Última Sincronização</div>
+            </div>
+        </div>
+
+        <!-- Seção 1: Visualização Dual e Consulta Simultânea (MySQL VPS vs CNCT Scraper) -->
+        <div class="card">
+            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                <span>1. Consulta Simultânea e Comparação Visual Dual (MySQL x Dados Raspados CNCT)</span>
+                <div style="display: flex; gap: 0.5rem; flex-shrink: 0; white-space: nowrap;">
+                    <button id="btn-carregar-preview" class="btn-primary">Carregar Dados Raspados CNCT</button>
+                    <button id="btn-carregar-banco" class="btn-secondary">Carregar Dados MySQL (VPS)</button>
+                </div>
+            </div>
+            
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem;">
+                Busca unificada em tempo real sobre a totalidade das tabelas do banco e da raspagem em paralelo, com suporte a colunas redimensionáveis com o mouse.
+            </p>
+
+            <!-- Barra de Busca Unificada Simultânea -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem; background: #0f172a; padding: 1rem; border-radius: 8px; border: 1px solid #334155; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <label for="input-busca-unificada" style="font-size: 0.8rem; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 0.3rem;">Busca Unificada Simultânea:</label>
+                    <input type="text" id="input-busca-unificada" class="form-input" placeholder="Digite instituição, município, endereço ou ID para filtrar ambas simultaneamente..." style="width: 100%;">
+                </div>
+                <div style="width: 220px;">
+                    <label for="select-modo-busca" style="font-size: 0.8rem; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 0.3rem;">Modo de Consulta:</label>
+                    <select id="select-modo-busca" class="form-input" style="width: 100%; background: #1e293b; color: #f8fafc;">
+                        <option value="ambas">Filtrar Ambas Simultaneamente</option>
+                        <option value="banco">Apenas Banco MySQL</option>
+                        <option value="raspagem">Apenas Dados Raspados</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Grid Dual Lado a Lado (Duas Tabelas Tabulator) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 1.5rem;">
+                
+                <!-- Coluna 1: Banco de Dados MySQL (VPS) -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; color: #38bdf8; font-size: 0.9rem;">Tabela Instituições 1: Banco de Dados MySQL (VPS)</span>
+                        <span id="counter-db-rows" style="font-size: 0.8rem; color: #94a3b8;">0 registros</span>
+                    </div>
+                    <div id="tabulator-db-table"></div>
+                </div>
+
+                <!-- Coluna 2: Dados Raspados (CNCT Scraper) -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; color: #34d399; font-size: 0.9rem;">Tabela Instituições 2: Dados Raspados (CNCT Updater)</span>
+                        <span id="counter-scraper-rows" style="font-size: 0.8rem; color: #94a3b8;">0 registros</span>
+                    </div>
+                    <div id="tabulator-table"></div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Seção 1.1: Visualização Dual e Consulta Simultânea de Cursos Técnicos -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                <span>1.1. Consulta Simultânea e Comparação Visual Dual de Cursos (MySQL x Dados Raspados CNCT)</span>
+                <div style="display: flex; gap: 0.5rem; flex-shrink: 0; white-space: nowrap;">
+                    <button id="btn-carregar-cursos-preview" class="btn-primary">Carregar Cursos Raspados CNCT</button>
+                    <button id="btn-carregar-cursos-banco" class="btn-secondary">Carregar Cursos MySQL (VPS)</button>
+                </div>
+            </div>
+            
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem;">
+                Busca unificada em tempo real sobre os cursos técnicos cadastrados no banco de dados e obtidos da última raspagem CSV.
+            </p>
+
+            <!-- Barra de Busca Unificada Simultânea de Cursos -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem; background: #0f172a; padding: 1rem; border-radius: 8px; border: 1px solid #334155; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <label for="input-busca-cursos" style="font-size: 0.8rem; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 0.3rem;">Busca Unificada de Cursos:</label>
+                    <input type="text" id="input-busca-cursos" class="form-input" placeholder="Digite nome do curso, eixo tecnológico, CBO ou ID para filtrar ambos simultaneamente..." style="width: 100%;">
+                </div>
+                <div style="width: 220px;">
+                    <label for="select-modo-busca-cursos" style="font-size: 0.8rem; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 0.3rem;">Modo de Consulta:</label>
+                    <select id="select-modo-busca-cursos" class="form-input" style="width: 100%; background: #1e293b; color: #f8fafc;">
+                        <option value="ambas">Filtrar Ambas Simultaneamente</option>
+                        <option value="banco">Apenas Banco MySQL</option>
+                        <option value="raspagem">Apenas Dados Raspados</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Grid Dual Lado a Lado de Cursos -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 1.5rem;">
+                
+                <!-- Coluna 1: Banco de Dados MySQL (VPS) - Cursos -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; color: #38bdf8; font-size: 0.9rem;">Tabela Cursos 1: Banco de Dados MySQL (VPS)</span>
+                        <span id="counter-db-cursos-rows" style="font-size: 0.8rem; color: #94a3b8;">0 registros</span>
+                    </div>
+                    <div id="tabulator-db-cursos-table"></div>
+                </div>
+
+                <!-- Coluna 2: Dados Raspados (CNCT Scraper) - Cursos -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; color: #34d399; font-size: 0.9rem;">Tabela Cursos 2: Dados Raspados (CNCT Updater)</span>
+                        <span id="counter-scraper-cursos-rows" style="font-size: 0.8rem; color: #94a3b8;">0 registros</span>
+                    </div>
+                    <div id="tabulator-cursos-table"></div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- Seção 2: Comparação de Estado (Diff Engine) & Diagnóstico em Texto -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-title">
+                <span>2. Teste de Eficiência e Comparação contra o Banco de Dados (VPS)</span>
+                <button id="btn-simular-diff" class="btn-secondary">Executar Simulação de Diff</button>
+            </div>
+
+            <div id="container-stats" class="stats-grid" style="display: none;">
+                <div class="stat-card">
+                    <div id="val-novos" class="stat-val" style="color: #34d399;">0</div>
+                    <div class="stat-label">Novos (A Inserir)</div>
+                </div>
+                <div class="stat-card">
+                    <div id="val-alterados" class="stat-val" style="color: #fbbf24;">0</div>
+                    <div class="stat-label">Modificados (A Atualizar)</div>
+                </div>
+                <div class="stat-card">
+                    <div id="val-inativados" class="stat-val" style="color: #f87171;">0</div>
+                    <div class="stat-label">Inativados (ativo = 0)</div>
+                </div>
+                <div class="stat-card">
+                    <div id="val-mantidos" class="stat-val" style="color: #94a3b8;">0</div>
+                    <div class="stat-label">Mantidos Sem Alteração</div>
+                </div>
+            </div>
+
+            <!-- Caixa de Diagnóstico Descritivo em Texto -->
+            <div id="container-diagnosis" style="display: none;">
+                <label style="color: #cbd5e1; font-weight: 600; font-size: 0.9rem;">Diagnóstico Descritivo em Texto:</label>
+                <div id="text-diagnosis-body" class="diagnosis-card"></div>
+                
+                <button id="btn-abrir-confirmacao" class="btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 0.9rem; font-size: 1rem;">
+                    Confirmar e Autorizar Sincronização no Banco
+                </button>
+            </div>
+        </div>
+
+        <!-- Barra de Progresso Real SSE -->
+        <div id="progress-container" class="progress-bar-wrapper">
+            <div class="progress-meta">
+                <span id="progress-label-item">Sincronizando registros no MySQL...</span>
+                <span id="progress-label-counter" style="color: #38bdf8;">0 / 0 (0%)</span>
+            </div>
+            <div class="progress-track" style="margin-top: 0.5rem;">
+                <div id="progress-bar-fill" class="progress-fill"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal de Reautenticação por Senha e Auditoria -->
+    <div id="modal-confirmacao" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title">Confirmação de Segurança de Gravação</div>
+            
+            <div class="audit-info">
+                <div><strong>Sessão Herdada Esteio Conecta:</strong> <span id="audit-user-email">usuario@esteioconecta.rs.gov.br</span></div>
+                <div><strong>IP de Origem Coletado:</strong> <span id="audit-ip">127.0.0.1</span></div>
+                <div><strong>Data e Hora Exata:</strong> <span id="audit-timestamp">--/--/---- --:--:--</span></div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="input-senha-confirmacao" style="color: #cbd5e1;">Insira sua senha de usuário logado para autorizar:</label>
+                <input type="password" id="input-senha-confirmacao" class="form-input" placeholder="Digite sua senha..." style="margin-top: 0.5rem;">
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button id="btn-cancelar-modal" class="btn-secondary">Cancelar</button>
+                <button id="btn-executar-sincronizacao" class="btn-primary">Executar Povoamento</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabulator.js Library -->
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
+    <script src="/static/js/migracao.js?v=2.3"></script>
+</body>
+</html>
