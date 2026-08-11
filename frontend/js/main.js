@@ -47,6 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const maxCoursesInput = document.getElementById("max-courses");
         if (!infoElement) return;
 
+        // Define valor padrão imediato para evitar exibição contínua de "Consultando..."
+        infoElement.textContent = `Total de cursos atuais no MEC: 215`;
+
         try {
             const tokenParam = getTokenParam() ? `?${getTokenParam().replace(/^&/, '')}` : '';
             const resp = await fetch(`/api/scraper/total-cursos-mec${tokenParam}`, { credentials: "include" });
@@ -55,8 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const total = data.total_cursos_mec || 215;
                 infoElement.textContent = `Total de cursos atuais no MEC: ${total}`;
                 if (maxCoursesInput) maxCoursesInput.max = total;
-            } else {
-                infoElement.textContent = `Total de cursos atuais no MEC: 215`;
             }
         } catch (err) {
             infoElement.textContent = `Total de cursos atuais no MEC: 215`;

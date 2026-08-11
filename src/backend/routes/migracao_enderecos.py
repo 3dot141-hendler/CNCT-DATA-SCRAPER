@@ -789,7 +789,8 @@ async def executar_povoamento(request: Request, body: Dict[str, Any] = Body(...)
                 cursor.close()
                 conn.close()
 
-                yield f"data: {json.dumps({'status': 'concluido', 'mensagem': 'Sincronização concluída com sucesso!', 'progresso': f'{total_registros}/{total_registros}', 'audit_ip': client_ip, 'audit_timestamp': data_hora_iso})}\n\n"
+                total_efetivados = total_inseridos + total_atualizados + total_inativados
+                yield f"data: {json.dumps({'status': 'concluido', 'mensagem': 'Sincronização concluída com sucesso!', 'progresso': f'{total_efetivados}/{max(total_efetivados, 1)}', 'audit_ip': client_ip, 'audit_timestamp': data_hora_iso})}\n\n"
             except Exception as e:
                 if conn:
                     conn.rollback()

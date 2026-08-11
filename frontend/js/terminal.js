@@ -61,6 +61,17 @@ class TerminalController {
         line.textContent = rawMessage;
         this.terminalBody.appendChild(line);
 
+        // Atualização em tempo real do badge de total de cursos caso reportado no log do MEC
+        if (rawMessage.includes("Catalogo oficial do MEC informado:")) {
+            const match = rawMessage.match(/(\d+)\s+cursos/i);
+            if (match) {
+                const infoElement = document.getElementById("info-total-cursos-mec");
+                if (infoElement) infoElement.textContent = `Total de cursos atuais no MEC: ${match[1]}`;
+                const maxCoursesInput = document.getElementById("max-courses");
+                if (maxCoursesInput) maxCoursesInput.max = match[1];
+            }
+        }
+
         // Autoscroll para o final do terminal
         this.terminalBody.scrollTop = this.terminalBody.scrollHeight;
     }
