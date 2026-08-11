@@ -465,10 +465,15 @@ def compare_datasets_c(db_data: List[Dict[str, Any]], csv_data: List[Dict[str, A
         is_parcial_detected = is_parcial
 
     for csv_item in csv_data:
-        c_nome = csv_item.get('nome_instituicao') or csv_item.get('nome') or ""
+        c_nome = (csv_item.get('nome_instituicao') or csv_item.get('nome') or "").strip()
+        c_end = (csv_item.get('endereco') or csv_item.get('endereco_original') or "").strip()
+        
+        # Ignora linhas totalmente inválidas ou vazias no arquivo CSV (ex: linhas em branco no final do arquivo)
+        if (not c_nome or c_nome.lower() in ('sem nome', 'não informado', 'n/i', 'none')) and (not c_end or c_end.lower() in ('não informado', 'n/i', 'none', '')):
+            continue
+        
         c_muni = csv_item.get('municipio') or ""
         c_uf = csv_item.get('uf') or ""
-        c_end = csv_item.get('endereco') or csv_item.get('endereco_original') or ""
         
         if (not c_muni or not c_uf) and c_end:
             parsed_c = parse_address_c(c_end)
