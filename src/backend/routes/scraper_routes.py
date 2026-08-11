@@ -49,3 +49,21 @@ def get_scraping_status():
     Retorna o status atual do pipeline de raspagem.
     """
     return scraper_status
+
+
+@router.get("/total-cursos-mec")
+def get_total_cursos_mec():
+    """
+    Consulta ultrarrápida ao catálogo oficial do MEC (~200ms) para retornar o total exato de cursos cadastrados.
+    """
+    try:
+        from src.scraper.client import CNCTApiClient
+        client = CNCTApiClient()
+        catalog = client.get_home_catalog()
+        if catalog and "catalogo" in catalog:
+            total = catalog["catalogo"].get("quantidadeCursos", 215)
+            return {"total_cursos_mec": total, "sucesso": True}
+    except Exception as e:
+        print(f"[WARN] Falha ao consultar total de cursos no MEC: {e}")
+    
+    return {"total_cursos_mec": 215, "sucesso": False, "mensagem": "Usando valor padrão de fallback."}

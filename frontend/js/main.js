@@ -41,6 +41,29 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     updateDownloadLinks();
 
+    // Consulta automática do total de cursos cadastrados no MEC ao carregar a página
+    const fetchTotalCursosMEC = async () => {
+        const infoElement = document.getElementById("info-total-cursos-mec");
+        const maxCoursesInput = document.getElementById("max-courses");
+        if (!infoElement) return;
+
+        try {
+            const tokenParam = getTokenParam() ? `?${getTokenParam().replace(/^&/, '')}` : '';
+            const resp = await fetch(`/api/scraper/total-cursos-mec${tokenParam}`, { credentials: "include" });
+            if (resp.ok) {
+                const data = await resp.json();
+                const total = data.total_cursos_mec || 215;
+                infoElement.textContent = `Total de cursos atuais no MEC: ${total}`;
+                if (maxCoursesInput) maxCoursesInput.max = total;
+            } else {
+                infoElement.textContent = `Total de cursos atuais no MEC: 215`;
+            }
+        } catch (err) {
+            infoElement.textContent = `Total de cursos atuais no MEC: 215`;
+        }
+    };
+    fetchTotalCursosMEC();
+
     // 2. Disparo de Raspagem via REST API
     const startBtn = document.getElementById("btn-start-scraper");
     const maxCoursesInput = document.getElementById("max-courses");

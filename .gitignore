@@ -26,12 +26,23 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Dynamic output & runtime logs
+# Non-essential development, agent & test folders
 output/
 logs/
+scratch/
+.gemini/
+.agents/
+contexto_agent/
+tests/
 *.log
 *.csv
+
+# Root legacy update files (moved to DOCS/updates/)
+updates_01.md
+updates_numero_.md
 
 # C Compiled objects (mantenha apenas a DLL/SO de release se necessário)
 src/c_aggregator/*.o
 src/c_aggregator/*.obj
+src/c_aggregator/*.so
+src/c_aggregator/*.dll

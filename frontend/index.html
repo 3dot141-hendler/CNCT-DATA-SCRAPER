@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CNCT Scraper - WebApp Terminal</title>
+    <title>CNCT Updater - WebApp Terminal</title>
     <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="/static/css/terminal.css">
 </head>
@@ -12,12 +12,18 @@
     <!-- Header Navbar -->
     <header class="app-header">
         <div class="brand">
-            <h1>CNCT Scraper</h1>
+            <h1>CNCT Updater</h1>
             <span class="badge">Snowflake 64-bit + C Engine</span>
         </div>
+        <script>
+            function navigateWithToken(path) {
+                window.location.href = path + window.location.search;
+            }
+        </script>
         <nav class="nav-tabs">
             <button class="tab-btn active" data-tab="tab-terminal">Console Terminal</button>
             <button class="tab-btn" data-tab="tab-data">Dados & Exportação</button>
+            <button class="tab-btn" onclick="navigateWithToken('/migracao')">Sincronização do Banco de dados</button>
         </nav>
     </header>
 
@@ -37,6 +43,9 @@
                     <div class="form-group">
                         <label for="max-courses">Limite de Cursos para Raspagem:</label>
                         <input type="number" id="max-courses" class="form-input" value="5" min="1" max="215">
+                        <div id="info-total-cursos-mec" style="margin-top: 0.4rem; font-size: 0.85rem; color: var(--accent-blue); font-weight: 500;">
+                            Consultando catálogo oficial do MEC...
+                        </div>
                     </div>
 
                     <button id="btn-start-scraper" class="btn-primary" style="width: 100%; margin-top: 1rem;">

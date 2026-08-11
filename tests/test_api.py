@@ -30,6 +30,19 @@ def test_read_root_invalid_token():
     assert "Acesso Negado" in response.text
 
 
+def test_read_migracao_unauthenticated():
+    response = client.get("/migracao")
+    assert response.status_code == 403
+    assert "Acesso Negado" in response.text
+
+
+def test_read_migracao_invalid_token():
+    invalid_token = create_invalid_token()
+    response = client.get(f"/migracao?token={invalid_token}")
+    assert response.status_code == 403
+    assert "Acesso Negado" in response.text
+
+
 def test_read_root_authenticated_query_token():
     valid_token = create_valid_token()
     response = client.get(f"/?token={valid_token}")
