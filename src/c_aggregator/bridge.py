@@ -268,15 +268,19 @@ def normalize_core_name(name: str) -> str:
 def clean_deduplicate_address(raw_address: str) -> str:
     """
     Higieniza o texto bruto de endereço raspado do CNCT:
-    1. Corrige erros comuns de digitação/raspagem em prefixos de logradouro ('Enida' -> 'Avenida', etc).
-    2. Remove duplicações sequenciais de trechos (ex: 'Rua X, 100, Rua X, 100').
-    3. Limpa pontuações duplicadas e espaços extras.
+    1. Purga totalmente referências a Caixa Postal (ex: Cx. Postal, Cx.postal-119.253, C.P. 123).
+    2. Corrige erros comuns de digitação/raspagem em prefixos de logradouro ('Enida' -> 'Avenida', etc).
+    3. Remove duplicações sequenciais de trechos (ex: 'Rua X, 100, Rua X, 100').
+    4. Limpa pontuações duplicadas e espaços extras.
     """
     if not raw_address:
         return ""
     
-    # Sanitização preventiva de typos e abreviações em logradouros
     txt = raw_address
+    # Expulsa todas as referências a Caixa Postal (ex: Cx. Postal, Cx.postal-119.253, C.P. 123, CEP associado)
+    txt = re.sub(r'\b(?:Cx\.?\s*postal|Caixa\s*postal|C\.?\s*P\.?)\s*[-:]?\s*[\d\.\-]*\b(?:\s*CEP\s*[-:]?\s*\d{5}-?\d{3})?', '', txt, flags=re.IGNORECASE)
+
+    # Sanitização preventiva de typos e abreviações em logradouros
     txt = re.sub(r'\bEnida\b', 'Avenida', txt, flags=re.IGNORECASE)
     txt = re.sub(r'\bAv\.\b|\bAv\b', 'Avenida', txt, flags=re.IGNORECASE)
     txt = re.sub(r'\bR\.\b', 'Rua', txt, flags=re.IGNORECASE)

@@ -40,6 +40,30 @@ static void sanitize_cep(const char *raw_cep, char *out_cep) {
     out_cep[idx] = '\0';
 }
 
+// Remove trechos de Caixa Postal do buffer de endereço em C
+static void purge_caixa_postal(char *str) {
+    if (!str) return;
+    char *p;
+    char lower[1024];
+    for (int i = 0; str[i]; i++) lower[i] = tolower((unsigned char)str[i]);
+    lower[strlen(str)] = '\0';
+
+    const char *targets[] = {"cx.postal", "cx postal", "caixa postal", "c.p."};
+    for (int t = 0; t < 4; t++) {
+        p = strstr(lower, targets[t]);
+        if (p) {
+            int offset = p - lower;
+            int len = strlen(targets[t]);
+            // Avança até o próximo separador (vírgula ou fim de palavra)
+            while (p[len] && p[len] != ',' && (isdigit((unsigned char)p[len]) || isspace((unsigned char)p[len]) || p[len] == '-' || p[len] == '.')) {
+                len++;
+            }
+            memmove(str + offset, str + offset + len, strlen(str + offset + len) + 1);
+            memmove(lower + offset, lower + offset + len, strlen(lower + offset + len) + 1);
+        }
+    }
+}
+
 // Algoritmo de parsing de endereço nativo em C
 int parse_address_native(const char *raw_endereco, ParsedAddress *out) {
     if (!raw_endereco || strlen(raw_endereco) == 0 || strcasecmp(raw_endereco, "não informado") == 0) {
@@ -50,6 +74,8 @@ int parse_address_native(const char *raw_endereco, ParsedAddress *out) {
     memset(out, 0, sizeof(ParsedAddress));
     char buffer[1024];
     strncpy(buffer, raw_endereco, sizeof(buffer) - 1);
+    trim(buffer);
+    purge_caixa_postal(buffer);
     trim(buffer);
 
     // 1. Tenta identificar UF e CEP no final da string (ex: " ... RS 93260-006" ou " ... RS 93260006")
