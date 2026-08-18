@@ -7,13 +7,14 @@ import os
 import json
 import asyncio
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, Request, HTTPException, status, Body
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 
 from src.backend.auth import decode_jwt_token, COOKIE_NAME
 from src.backend.database import get_db_connection, init_audit_table
-from src.c_aggregator.bridge import parse_address_c, compare_datasets_c, generate_text_diagnosis_c
+from src.c_aggregator.bridge import parse_address_c, compare_datasets_c, generate_text_diagnosis_c, export_diff_to_files, sanitize_municipio_name
 from src.utils.snowflake import SnowflakeGenerator
 
 router = APIRouter(prefix="/api/migracao", tags=["Migração de Endereços"])
@@ -85,19 +86,24 @@ async def preview_amostragem(request: Request, body: Dict[str, Any] = Body(...))
         raw_end = row.get("endereco", "")
         parsed = parse_address_c(raw_end)
         
+        raw_muni = sanitize_municipio_name(row.get("municipio"))
+        final_muni = parsed["municipio"] or raw_muni
+        final_uf = parsed["uf"] or (row.get("uf") or "").strip()[:2].upper()
+        final_cep = parsed["cep"] or row.get("cep")
+
         amostragem.append({
             "snowflake_id": row.get("snowflake_id") or row.get("id"),
             "nome_instituicao": row.get("nome_instituicao") or row.get("nome"),
             "dependencia_adm": row.get("dependencia_adm"),
             "endereco_original": raw_end,
             "endereco": raw_end,
-            "logradouro": row.get("logradouro") or parsed["logradouro"],
-            "numero": row.get("numero") or parsed["numero"],
-            "complemento": row.get("complemento") or parsed["complemento"],
-            "bairro": row.get("bairro") or parsed["bairro"],
-            "municipio": row.get("municipio") or parsed["municipio"],
-            "uf": row.get("uf") or parsed["uf"],
-            "cep": row.get("cep") or parsed["cep"],
+            "logradouro": parsed["logradouro"] or row.get("logradouro"),
+            "numero": parsed["numero"] or row.get("numero"),
+            "complemento": parsed["complemento"] or row.get("complemento"),
+            "bairro": parsed["bairro"] or row.get("bairro"),
+            "municipio": final_muni,
+            "uf": final_uf,
+            "cep": final_cep,
             "telefone": row.get("telefone"),
             "email": row.get("email"),
             "homepage": row.get("homepage")
@@ -208,7 +214,7 @@ async def diagnostico_45_inativados(request: Request):
     if conn:
         try:
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT id, nome_instituicao, endereco, municipio, uf, ativo FROM INSTITUICOES_ENSINO_TECNICO")
+            cursor.execute("SELECT id, nome_instituicao, endereco, municipio, uf, cep, ativo FROM INSTITUICOES_ENSINO_TECNICO")
             db_items = cursor.fetchall()
             cursor.close()
             conn.close()
@@ -536,7 +542,7 @@ async def simulacao_diff(request: Request, body: Dict[str, Any] = Body(...)):
         db_connected = True
         try:
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT id, nome_instituicao, municipio, uf, endereco, ativo FROM INSTITUICOES_ENSINO_TECNICO")
+            cursor.execute("SELECT id, nome_instituicao, municipio, uf, cep, endereco, ativo FROM INSTITUICOES_ENSINO_TECNICO")
             db_items = cursor.fetchall()
             cursor.close()
             conn.close()
@@ -546,10 +552,15 @@ async def simulacao_diff(request: Request, body: Dict[str, Any] = Body(...)):
     diff_result = compare_datasets_c(db_items, csv_items, is_parcial=is_parcial_requested)
     diagnostico_texto = generate_text_diagnosis_c(diff_result)
 
+    # Exporta automaticamente os 4 CSVs e a planilha Excel (.xlsx) multi-abas para o diretorio output na raiz do projeto
+    project_root = Path(__file__).parent.parent.parent.parent
+    output_dir = project_root / "output"
+    export_diff_to_files(diff_result, output_dir)
+
     if not db_connected:
         alerta_sem_conexao = (
             "===================================================================\n"
-            "  ⚠️ AVISO: FALHA DE CONEXÃO COM O BANCO DE DADOS MYSQL (VPS)\n"
+            "  AVISO: FALHA DE CONEXÃO COM O BANCO DE DADOS MYSQL (VPS)\n"
             "-------------------------------------------------------------------\n"
             "  • Não foi possível conectar ao MySQL na porta configurada (127.0.0.1:33060).\n"
             "  • Certifique-se de que o túnel SSH está rodando em segundo plano:\n"
@@ -578,6 +589,67 @@ async def simulacao_diff(request: Request, body: Dict[str, Any] = Body(...)):
             "inativados": diff_result["inativados"][:10]
         }
     }
+
+
+@router.get("/download-diff/csv/{tabela_id}")
+async def download_diff_csv(tabela_id: int, request: Request):
+    """
+    Download seguro dos arquivos CSV dos tópicos do Diff (tabela_id: 1, 2, 3 ou 4).
+    """
+    get_authenticated_user_payload(request)
+
+    file_map = {
+        1: ("diff_1_instituicoes_novas.csv", "1_RELACAO_INSTITUICOES_NOVAS.csv"),
+        2: ("diff_2_alteracoes_cadastrais.csv", "2_COMPARACAO_ALTERACOES_CADASTRAIS.csv"),
+        3: ("diff_3_instituicoes_inativadas.csv", "3_RELACAO_INSTITUICOES_INATIVADAS.csv"),
+        4: ("diff_4_detalhamento_cursos_ofertas.csv", "4_DETALHAMENTO_CURSOS_OFERTAS.csv")
+    }
+
+    if tabela_id not in file_map:
+        raise HTTPException(status_code=400, detail="ID de tabela do Diff inválido (use 1, 2, 3 ou 4).")
+
+    filename_internal, download_name = file_map[tabela_id]
+
+    project_root = Path(__file__).parent.parent.parent.parent
+    candidates = [
+        project_root / "output" / filename_internal,
+        project_root / "src" / "output" / filename_internal,
+        Path("output") / filename_internal
+    ]
+
+    target_path = next((c for c in candidates if c.exists() and c.is_file()), None)
+    if not target_path:
+        raise HTTPException(status_code=404, detail="Arquivo CSV do Diff não foi encontrado. Execute a Simulação de Diff primeiro.")
+
+    return FileResponse(path=target_path, filename=download_name, media_type="text/csv")
+
+
+@router.get("/download-diff/excel")
+async def download_diff_excel(request: Request):
+    """
+    Download seguro da planilha Excel (.xlsx) consolidada com as 4 abas do Diff.
+    """
+    get_authenticated_user_payload(request)
+
+    filename_internal = "diff_relatorio_completo.xlsx"
+    download_name = "RELATORIO_DIFF_SINCRONIZACAO_COMPLETO.xlsx"
+
+    project_root = Path(__file__).parent.parent.parent.parent
+    candidates = [
+        project_root / "output" / filename_internal,
+        project_root / "src" / "output" / filename_internal,
+        Path("output") / filename_internal
+    ]
+
+    target_path = next((c for c in candidates if c.exists() and c.is_file()), None)
+    if not target_path:
+        raise HTTPException(status_code=404, detail="Planilha Excel do Diff não foi encontrada. Execute a Simulação de Diff primeiro.")
+
+    return FileResponse(
+        path=target_path,
+        filename=download_name,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
 
 @router.post("/executar")
@@ -626,7 +698,7 @@ async def executar_povoamento(request: Request, body: Dict[str, Any] = Body(...)
 
                 # Se novos/alterados não vieram separados no body, re-executa o Diff de forma infalível contra a VPS
                 if not novos_lista and not alterados_lista:
-                    cursor.execute("SELECT id, nome_instituicao, municipio, uf, endereco, ativo FROM INSTITUICOES_ENSINO_TECNICO")
+                    cursor.execute("SELECT id, nome_instituicao, municipio, uf, cep, endereco, ativo FROM INSTITUICOES_ENSINO_TECNICO")
                     db_items_sync = cursor.fetchall()
                     csv_items_sync = registros_legacy if registros_legacy else parse_csv_file()
                     
@@ -651,13 +723,14 @@ async def executar_povoamento(request: Request, body: Dict[str, Any] = Body(...)
                     if not sf_id or item.get("is_novo"):
                         sf_id = snowflake_gen.generate_id()
 
-                    logr = item.get("logradouro") or parsed["logradouro"]
-                    num = item.get("numero") or parsed["numero"]
-                    comp = item.get("complemento") or parsed["complemento"]
-                    bairro = item.get("bairro") or parsed["bairro"]
-                    muni = item.get("municipio") or parsed["municipio"]
-                    uf = item.get("uf") or parsed["uf"]
-                    cep = item.get("cep") or parsed["cep"]
+                    logr = parsed["logradouro"] or item.get("logradouro")
+                    num = parsed["numero"] or item.get("numero")
+                    comp = parsed["complemento"] or item.get("complemento")
+                    bairro = parsed["bairro"] or item.get("bairro")
+                    raw_muni = sanitize_municipio_name(item.get("municipio"))
+                    muni = parsed["municipio"] or raw_muni
+                    uf = parsed["uf"] or (item.get("uf") or "").strip()[:2].upper()
+                    cep = parsed["cep"] or item.get("cep")
 
                     query_insert = """
                         INSERT INTO INSTITUICOES_ENSINO_TECNICO (
@@ -713,13 +786,14 @@ async def executar_povoamento(request: Request, body: Dict[str, Any] = Body(...)
                     if not sf_id:
                         continue
 
-                    logr = item.get("logradouro") or parsed["logradouro"]
-                    num = item.get("numero") or parsed["numero"]
-                    comp = item.get("complemento") or parsed["complemento"]
-                    bairro = item.get("bairro") or parsed["bairro"]
-                    muni = item.get("municipio") or parsed["municipio"]
-                    uf = item.get("uf") or parsed["uf"]
-                    cep = item.get("cep") or parsed["cep"]
+                    logr = parsed["logradouro"] or item.get("logradouro")
+                    num = parsed["numero"] or item.get("numero")
+                    comp = parsed["complemento"] or item.get("complemento")
+                    bairro = parsed["bairro"] or item.get("bairro")
+                    raw_muni = sanitize_municipio_name(item.get("municipio"))
+                    muni = parsed["municipio"] or raw_muni
+                    uf = parsed["uf"] or (item.get("uf") or "").strip()[:2].upper()
+                    cep = parsed["cep"] or item.get("cep")
 
                     query_update = """
                         UPDATE INSTITUICOES_ENSINO_TECNICO SET
@@ -960,7 +1034,7 @@ async def validar_diff_pos_limpeza(request: Request):
         raise HTTPException(status_code=500, detail="Erro ao conectar ao MySQL da VPS.")
 
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, nome_instituicao, municipio, uf, endereco, ativo FROM INSTITUICOES_ENSINO_TECNICO")
+    cursor.execute("SELECT id, nome_instituicao, municipio, uf, cep, endereco, ativo FROM INSTITUICOES_ENSINO_TECNICO")
     db_items = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -987,5 +1061,82 @@ async def validar_diff_pos_limpeza(request: Request):
             "colegio_florence_status": "MANTIDO (ativo=1)" if florence_item else "NÃO ENCONTRADO EM MANTIDOS"
         },
         "amostra_inativados": res["inativados"][:10]
+    }
+
+
+@router.post("/higienizar-banco-existente")
+async def higienizar_banco_existente(request: Request):
+    """
+    Higieniza todos os registros legados da tabela INSTITUICOES_ENSINO_TECNICO no MySQL da VPS:
+    Decompõe o endereço bruto e corrige registros onde 'municipio' guardava sufixos de UF/CEP (ex: 'Nova Friburgo RJ - 2863008'),
+    preenchendo os campos 'municipio', 'uf', 'cep', 'logradouro', 'numero', 'complemento' e 'bairro' purificados.
+    """
+    get_authenticated_user_payload(request)
+    conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Erro ao conectar ao MySQL da VPS.")
+
+    totais_atualizados = 0
+    try:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, endereco, municipio, uf, cep, logradouro, numero, complemento, bairro FROM INSTITUICOES_ENSINO_TECNICO")
+        rows = cursor.fetchall()
+
+        query_update = """
+            UPDATE INSTITUICOES_ENSINO_TECNICO SET
+                logradouro = %s,
+                numero = %s,
+                complemento = %s,
+                bairro = %s,
+                municipio = %s,
+                uf = %s,
+                cep = %s,
+                atualizado_em = NOW()
+            WHERE id = %s;
+        """
+
+        for row in rows:
+            sf_id = row.get("id")
+            raw_end = row.get("endereco") or ""
+            if not raw_end or not sf_id:
+                continue
+
+            parsed = parse_address_c(raw_end)
+            muni_limpo = parsed.get("municipio") or sanitize_municipio_name(row.get("municipio"))
+            uf_limpo = parsed.get("uf") or (row.get("uf") or "").strip()[:2].upper()
+            cep_limpo = parsed.get("cep") or row.get("cep")
+
+            logr_limpo = parsed.get("logradouro") or row.get("logradouro")
+            num_limpo = parsed.get("numero") or row.get("numero")
+            comp_limpo = parsed.get("complemento") or row.get("complemento")
+            bairro_limpo = parsed.get("bairro") or row.get("bairro")
+
+            # Atualiza se o município atual no BD for diferente do limpo ou contiver sufixos de CEP/UF
+            muni_db = str(row.get("municipio") or "").strip()
+            precisa_atualizar = (
+                muni_limpo and (muni_limpo != muni_db or " - " in muni_db or " RJ " in muni_db or " SP " in muni_db or " MG " in muni_db)
+            ) or (uf_limpo and uf_limpo != str(row.get("uf") or "").strip()) or (cep_limpo and cep_limpo != str(row.get("cep") or "").strip())
+
+            if precisa_atualizar:
+                cursor.execute(query_update, (
+                    logr_limpo, num_limpo, comp_limpo, bairro_limpo,
+                    muni_limpo, uf_limpo, cep_limpo,
+                    sf_id
+                ))
+                totais_atualizados += 1
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        if conn and conn.is_connected():
+            conn.rollback()
+            conn.close()
+        raise HTTPException(status_code=500, detail=f"Erro ao higienizar banco da VPS: {e}")
+
+    return {
+        "status": "sucesso",
+        "mensagem": f"Higienização concluída com sucesso. {totais_atualizados} registros atualizados no MySQL da VPS.",
+        "totais_atualizados": totais_atualizados
     }
 

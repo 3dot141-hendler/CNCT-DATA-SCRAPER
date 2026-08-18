@@ -43,6 +43,7 @@ def parse_institution_record(raw_inst: Dict[str, Any], snowflake_id: int) -> Dic
     """
     Normaliza os atributos de uma instituicao ofertante.
     """
+    cidade_val = clean_text(raw_inst.get("cidade") or raw_inst.get("municipio"))
     return {
         "snowflake_id": snowflake_id,
         "nome_instituicao": clean_text(raw_inst.get("nome")),
@@ -52,5 +53,6 @@ def parse_institution_record(raw_inst: Dict[str, Any], snowflake_id: int) -> Dic
         "email": clean_text(raw_inst.get("email")),
         "homepage": clean_text(raw_inst.get("site")),
         "uf": clean_text(raw_inst.get("uf")),
-        "cidade": clean_text(raw_inst.get("cidade"))
+        "cidade": cidade_val,
+        "municipio": cidade_val
     }

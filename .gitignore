@@ -33,7 +33,7 @@ scratch/
 .gemini/
 .agents/
 contexto_agent/
-tests/
+tests/scratch/
 *.log
 *.csv
 !output/csv_instituicoes.csv
@@ -41,12 +41,14 @@ tests/
 !src/output/csv_instituicoes.csv
 !src/output/csv_cursos.csv
 
-# Root legacy update files (moved to DOCS/updates/)
+# Root legacy update files
 updates_01.md
 updates_numero_.md
 
-# C Compiled objects (mantenha apenas a DLL/SO de release se necessário)
+# C Compiled objects and executables (gerados no build Docker do Coolify)
 src/c_aggregator/*.o
 src/c_aggregator/*.obj
 src/c_aggregator/*.so
 src/c_aggregator/*.dll
+src/c_aggregator/aggregator
+src/c_aggregator/aggregator.exe

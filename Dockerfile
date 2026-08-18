@@ -2,15 +2,13 @@ FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
-ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
-# Instala ferramentas de compilação C completas (build-essential/libc6-dev para stdio.h), make, curl e chromium
+# Instala ferramentas essenciais de compilação C para ARM64 / x86_64, make e curl para Healthcheck
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     make \
     curl \
-    chromium \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -22,11 +20,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia todo o código-fonte do projeto
 COPY . .
 
-# Compila o executável C de alta performance
-RUN gcc -O3 -Wall src/c_aggregator/aggregator.c -o src/c_aggregator/aggregator
+# Compila o executável C nativo de alta performance para a arquitetura do container (ARM64 / x86_64)
+RUN gcc -O3 -Wall src/c_aggregator/aggregator.c -o src/c_aggregator/aggregator && \
+    chmod +x src/c_aggregator/aggregator
 
 # Expõe a porta 8000 da API FastAPI
 EXPOSE 8000
+
+# Healthcheck nativo para o Coolify validar a saúde da aplicação no deploy automático
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/api/migracao/status || exit 1
 
 # Comando de inicialização do servidor Uvicorn
 CMD ["uvicorn", "src.backend.app:app", "--host", "0.0.0.0", "--port", "8000"]

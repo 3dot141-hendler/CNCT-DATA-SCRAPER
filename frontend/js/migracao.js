@@ -539,5 +539,42 @@ document.addEventListener('DOMContentLoaded', () => {
             btnAbrirModal.disabled = false;
         }
     });
+
+    // --- Handlers de Download de Relatórios de Diff (CSV e Excel Multi-Abas) ---
+    const btnDownloadExcel = document.getElementById('btn-download-excel');
+    const btnDownloadCsv1 = document.getElementById('btn-download-csv-1');
+    const btnDownloadCsv2 = document.getElementById('btn-download-csv-2');
+    const btnDownloadCsv3 = document.getElementById('btn-download-csv-3');
+    const btnDownloadCsv4 = document.getElementById('btn-download-csv-4');
+
+    if (btnDownloadExcel) {
+        btnDownloadExcel.addEventListener('click', () => {
+            window.location.href = `/api/migracao/download-diff/excel${getTokenParam()}`;
+        });
+    }
+
+    if (btnDownloadCsv1) {
+        btnDownloadCsv1.addEventListener('click', () => {
+            window.location.href = `/api/migracao/download-diff/csv/1${getTokenParam()}`;
+        });
+    }
+
+    if (btnDownloadCsv2) {
+        btnDownloadCsv2.addEventListener('click', () => {
+            window.location.href = `/api/migracao/download-diff/csv/2${getTokenParam()}`;
+        });
+    }
+
+    if (btnDownloadCsv3) {
+        btnDownloadCsv3.addEventListener('click', () => {
+            window.location.href = `/api/migracao/download-diff/csv/3${getTokenParam()}`;
+        });
+    }
+
+    if (btnDownloadCsv4) {
+        btnDownloadCsv4.addEventListener('click', () => {
+            window.location.href = `/api/migracao/download-diff/csv/4${getTokenParam()}`;
+        });
+    }
 });
 

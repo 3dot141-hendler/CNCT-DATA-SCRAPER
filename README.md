@@ -1,122 +1,124 @@
-# CNCT Scraper - Arquitetura do Sistema e Guia de Execucao
+# CNCT Scraper & Engine de Sincronização
 
-## Visao Geral do Projeto
+## Visão Geral do Sistema
 
-O **CNCT Scraper** e uma solucao de engenharia de dados e raspagem web desenvolvida para extrair, transformar e estruturar informacoes completas sobre cursos tecnicos e instituicoes ofertantes cadastrados no Catologo Nacional de Cursos Tecnicos (CNCT) do MEC.
+O **CNCT Scraper** é uma solução completa de engenharia de dados, extração REST e sincronização cadastral desenvolvida para extrair, estruturar, higienizar e sincronizar informações sobre cursos técnicos e instituições de ensino ofertantes a partir do Catálogo Nacional de Cursos Técnicos (CNCT) do MEC com o banco de dados MySQL da VPS.
 
-O projeto resolve o desafio de alta latencia e renderizacao dinamica do portal atraves de uma abordagem em duas fases:
-1. **Fase 1**: Mapeamento de rede e captura de APIs REST internas nao documentadas.
-2. **Fase 2**: Pipeline de raspagem headless, gerador de Snowflake IDs thread-safe, agregador em C de alta performance e interface WebApp com terminal via WebSockets.
+O sistema resolve desafios de alta volumetria e contaminação de dados geográficos por meio de uma arquitetura modular em Python e C:
+1. **Pipeline de Raspagem Ultrarrápido**: Cliente HTTP REST nativo desacoplado que consome as APIs públicas do MEC sem dependência de navegadores pesados.
+2. **Módulo de Agregação, Sanitização e Diff em POO (`src/c_aggregator/`)**: Engenharia de higienização de endereços, extrator de CEPs, proteção dinâmica de numerais romanos e pareamento determinístico em O(1).
+3. **Engine de Migração e Sincronização MySQL**: Sincronização segura via túnel SSH, classificação em 4 categorias de registros e streaming de progresso em tempo real (SSE).
+4. **Interface Dual & Console Terminal**: Interface web moderna em CSS puro com Tabulator.js para comparação lado a lado entre o banco MySQL e a raspagem.
 
 ---
 
-## Estrutura de Diretarios Proposta (Fase 2)
+## Estrutura do Projeto
 
 ```text
 CNCT_SCRAPER/
-├── README.md
-├── discovery_sniffer.py            # Script da Fase 1 (Entregavel Imediato)
-├── requirements.txt
-├── Makefile                        # Build automation para o modulo C
-├── logs/                           # Logs de trafego interceptado da Fase 1
-│   ├── network_traffic_*.json
-│   └── endpoints_summary_*.json
-├── output/                         # Arquivos CSV finais
-│   ├── csv_cursos.csv
-│   └── csv_instituicoes.csv
+├── README.md                           # Especificações completas da arquitetura e execução
+├── Dockerfile                          # Build otimizado para deploy automático no Coolify (ARM64 / x86_64)
+├── requirements.txt                    # Dependências Python essenciais (FastAPI, uvicorn, PyJWT, etc.)
+├── Makefile                            # Automação de compilação dos módulos C nativos
+├── .env                                # Variáveis de ambiente (Túnel SSH/MySQL, JWT, CORS)
+├── .gitignore                          # Exclusão de arquivos temporários, logs e binários locais
+├── DOCS/                               # Documentação e relatórios de auditoria de dados
+│   ├── estado_atual_projeto.md         # Estado atual detalhado do projeto
+│   └── analises/                       # CSVs e diagnósticos de diff e validação
 ├── src/
-│   ├── __init__.py
-│   ├── main.py                     # Ponto de entrada e orquestrador principal
+│   ├── main.py                         # Ponto de entrada e testes de execução
 │   ├── backend/
-│   │   ├── __init__.py
-│   │   ├── app.py                  # Aplicacao FastAPI com WebSockets / SSE
-│   │   ├── routes/
-│   │   │   ├── __init__.py
-│   │   │   ├── scraper_routes.py   # Controladores de disparo e status
-│   │   │   └── data_routes.py      # Download dos arquivos CSV
-│   │   └── websocket_manager.py    # Transmissor de logs do terminal em tempo real
+│   │   ├── app.py                      # Aplicação FastAPI (JWT, Cookie HttpOnly, iFrame CSP)
+│   │   ├── config.py                   # Carregamento de configurações (.env)
+│   │   ├── auth.py                     # Autenticação JWT e proteção de rotas
+│   │   ├── database.py                 # Conexão MySQL (VPS via SSH) com conn.cursor(dictionary=True)
+│   │   ├── websocket_manager.py        # Streaming thread-safe de logs do terminal
+│   │   └── routes/
+│   │       ├── scraper_routes.py       # Controle de disparo da raspagem
+│   │       ├── data_routes.py          # Download e visualização de CSVs
+│   │       └── migracao_enderecos.py   # Fluxo de sincronização e gravação SSE no MySQL
 │   ├── scraper/
-│   │   ├── __init__.py
-│   │   ├── client.py               # Cliente HTTP / API direta ou Playwright headless
-│   │   ├── parser.py               # Extração e normalização de atributos HTML/JSON
-│   │   └── pipeline.py             # Orquestracao do fluxo de raspagem
+│   │   ├── client.py                   # Cliente HTTP REST para as rotas do MEC
+│   │   ├── parser.py                   # Sanitização e extração de JSON/HTML
+│   │   └── pipeline.py                 # Orquestrador da raspagem em thread secundária
 │   ├── utils/
-│   │   ├── __init__.py
-│   │   └── snowflake.py            # Classe SnowflakeGenerator thread-safe (64-bit)
+│   │   └── snowflake.py                # Gerador Snowflake ID de 64-bits thread-safe
 │   └── c_aggregator/
-│       ├── aggregator.c            # Script C de alta performance para associacao de IDs
-│       ├── aggregator.h
-│       └── bridge.py               # Wrapper Python (ctypes/subprocess) para invocar a C lib
+│       ├── numerais_romanos.py         # Submódulo POO RomanNumeralProtector (Proteção I-XX)
+│       ├── ceps.py                     # Submódulo POO CepExtractor (Extração/Formatação 5-8 dígitos)
+│       ├── address_parser.py           # Submódulo POO AddressParser (Parsing e extract_muni_uf_cep)
+│       ├── text_normalizer.py          # Submódulo POO TextNormalizer (Normalização e Chaves Naturais)
+│       ├── diff_matching.py            # Submódulo POO DiffEngine (Motor de Comparação Determinístico O(1))
+│       ├── post_diff_audit.py          # Submódulo POO PostDiffAuditor (Esteira Double Net Audit)
+│       ├── csv_exporter.py             # Submódulo POO DiffExporter (Geração dos 4 Relatórios CSV)
+│       ├── bridge.py                   # Fachada POO BridgeFacade e delegadores retrocompatíveis
+│       ├── aggregator.c                # Agregador de IDs em C (uint64_t)
+│       └── address_parser.c            # Parser nativo de endereços em C
 ├── frontend/
-│   ├── index.html                  # Container HTML puro
-│   ├── css/
-│   │   ├── styles.css              # Custom Dark/Modern UI styling
-│   │   └── terminal.css            # Estilos especificos para simulador de terminal
-│   └── js/
-│       ├── main.js                 # Scripts de navegacao e alternancia de abas
-│       └── terminal.js             # Conexao WebSocket e renderizacao de logs
-└── tests/
-    ├── __init__.py
-    ├── test_snowflake.py           # Testes unitarios do gerador Snowflake
-    ├── test_scraper.py             # Testes de extracao e parsing
-    ├── test_c_bridge.py            # Testes da integracao Python -> C
-    └── test_api.py                 # Testes das rotas FastAPI
+│   ├── index.html                      # Terminal interativo e amostra de dados
+│   ├── migracao.html                   # Interface Dual de Sincronização Lado a Lado (Tabulator.js)
+│   ├── css/ (styles.css, terminal.css) # Interface Dark/Modern em CSS puro
+│   └── js/ (main.js, migracao.js)      # Conexão WebSocket, SSE e manipulação de tabelas
+└── tests/                              # Suíte de testes unitários (TDD)
 ```
 
 ---
 
-## Fase 1: Instalar as dependencias necessarias:
+## Módulos Principais e Arquitetura POO
 
+### 1. Submódulo de Sanitização e Diff (`src/c_aggregator/`)
+- **`RomanNumeralProtector`**: Proteção dinâmica contra a truncação indesejada de numerais romanos de `I` a `XX` em nomes de municípios e instituições (ex: `Pedro II`, `Pio IX`).
+- **`CepExtractor`**: Identificação e extração de CEPs de 5 a 8 dígitos, higienizando formatos pontuados (ex: `65.72500` ➔ `6572500`) e sufixos residuais.
+- **`AddressParser`**: Decomposição estruturada de endereços em `logradouro`, `numero`, `complemento`, `bairro`, `municipio`, `uf` e `cep`. Inclui o extrator `extract_muni_uf_cep` para desinfecção de municípios sujos no MySQL (`'Pinheiro MA - 65200'` ➔ `('Pinheiro', 'MA', '65200')`).
+- **`DiffEngine`**: Motor de pareamento determinístico em O(1). Incorpora a trava `and diferencas`, impedindo a inserção de falsas atualizações de CEP/UF em registros idênticos (~16.350 mantidos em `MANTIDOS`).
+- **`PostDiffAuditor`**: Esteira de auditoria de dupla camada em 3 passos para reclassificar candidatos a novos antes de permitir a inserção de duplicatas.
+
+### 2. Regras de Sincronização Cadastral
+O motor classifica todas as instituições em 4 categorias estritas:
+- **NOVOS (INSERT)**: Registros sem correspondente na VPS (recebem novos Snowflake IDs).
+- **ALTERADOS / REATIVADOS (UPDATE)**: Registros com alteração de atributos ou reativação de instituições (`ativo = 0` ➔ `ativo = 1`).
+- **INATIVADOS (Soft Delete)**: Registros existentes no banco ausentes na raspagem completa (`ativo = 1` ➔ `ativo = 0`). Exclusão física `DELETE` é proibida.
+- **MANTIDOS**: Registros idênticos preservados sem alteração.
+
+---
+
+## Requisitos e Instalação Local
+
+### Dependências Básicas
 
 ```bash
-pip install playwright
-playwright install chromium
+pip install -r requirements.txt
 ```
 
+### Compilação do Módulo C (Opcional no ambiente local)
 
-## Fase 2: Arquitetura Detalhada e Integracao
-
-### 1. Gerador de Snowflake IDs (`src/utils/snowflake.py`)
-Utiliza inteiros de 64-bits estruturados da seguinte forma:
-- **41 bits**: Timestamp em milissegundos desde o epoch customizado.
-- **5 bits**: Identifier de Datacenter.
-- **5 bits**: Identifier de Worker.
-- **12 bits**: Contador de sequencia incremental.
-
-Garante ordenacao temporal e unicidade em ambientes concorrentes atraves de trava explicita (`threading.Lock`).
-
-### 2. Agregador de Alta Performance em C (`src/c_aggregator/aggregator.c`)
-- O processamento de associacao entre instituicoes e cursos oferecidos e delegado a um executavel compilar em C.
-- Leitura e gravação de inteiros não assinados de 64-bits utilizando `<stdint.h>` (`uint64_t`) e macros especificas de E/S (`%" SCNu64` e `%" PRIu64` da biblioteca `<inttypes.h>`).
-- Reduz o tempo de execucao e consumo de memoria ao processar milhares de relacoes de cursos por instituicao.
-
-### 3. WebApp & Terminal em Tempo Real
-- **Backend**: FastAPI com rotas REST e endpoint `/ws/terminal` para streaming de logs.
-- **Frontend**: HTML5 sem frameworks pesados, CSS3 estilizado em modo escuro/console e JavaScript Vanilla lidando com WebSockets para transmissao em tempo real dos logs de execucao.
+```bash
+make build
+```
 
 ---
 
-## Esquema dos Arquivos CSV de Saida
+## Deploy Automático no Coolify (VPS ARM64)
 
-### `csv_cursos.csv`
-| Coluna | Tipo | Descricao |
-| :--- | :--- | :--- |
-| `id_original` | String / Int | ID original contido na URL ou API do CNCT |
-| `snowflake_id` | uint64_t | ID Snowflake de 64-bits gerado no Python |
-| `nome_curso` | String | Nome oficial do curso tecnico |
-| `eixo_tecnologico` | String | Classificacao do eixo |
-| `carga_horaria` | String / Int | Carga horaria minima |
-| `perfil_profissional` | String | Descricao do perfil |
-| `campo_atuação` | String | Possibilidades de atuacao no mercado |
+O projeto está preparado para deploy automático no **Coolify** utilizando o `Dockerfile` otimizado:
+- **Arquitetura**: Multi-arch com suporte nativo a `linux/arm64`.
+- **Tamanho Otimizado**: Imagem Docker de apenas **~150MB**.
+- **Compilação C Automática**: O container compila o agregador nativo em C (`gcc -O3`) durante a etapa de build.
+- **Healthcheck Integrado**: Validação de saúde nativa na rota `/api/migracao/status`.
 
-### `csv_instituicoes.csv`
-| Coluna | Tipo | Descricao |
-| :--- | :--- | :--- |
-| `snowflake_id` | uint64_t | ID Snowflake da instituicao |
-| `nome_instituicao` | String | Nome da instituicao ofertante |
-| `dependencia_adm` | String | Tipo (Publica, Privada, Federal, etc.) |
-| `endereco` | String | Endereco completo |
-| `telefone` | String | Numero de contato |
-| `email` | String | Endereco de e-mail |
-| `homepage` | String | URL do site da instituicao |
-| `cursos_ofertados_ids` | JSON / Array | Lista de Snowflake IDs dos cursos oferecidos (gerado pelo script C) |
+### Execução via Docker Local
+
+```bash
+docker build -t cnct-scraper .
+docker run -p 8000:8000 cnct-scraper
+```
+
+---
+
+## Execução da Aplicação FastAPI
+
+```bash
+uvicorn src.backend.app:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Acesse o painel web em `http://localhost:8000/`.

@@ -37,7 +37,7 @@ def init_audit_table():
         return False
 
     try:
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS LOGS_AUDITORIA_MIGRACAO (
                 id BIGINT PRIMARY KEY,

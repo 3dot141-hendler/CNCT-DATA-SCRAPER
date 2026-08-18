@@ -336,7 +336,7 @@ def maintenance_validate_diff():
     if not conn:
         return {"status": "erro", "mensagem": "Falha de conexão com o MySQL"}
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT id, nome_instituicao, municipio, uf, endereco, ativo FROM INSTITUICOES_ENSINO_TECNICO")
+    cursor.execute("SELECT id, nome_instituicao, municipio, uf, cep, endereco, ativo FROM INSTITUICOES_ENSINO_TECNICO")
     db_items = cursor.fetchall()
     cursor.close()
     conn.close()

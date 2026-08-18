@@ -261,6 +261,35 @@
 
             <!-- Caixa de Diagnóstico Descritivo em Texto -->
             <div id="container-diagnosis" style="display: none;">
+                
+                <!-- Painel de Exportação de Relatórios de Diff (CSV e Excel Multi-Abas) -->
+                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <h3 style="font-size: 1rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.25rem 0;">Exportação de Relatórios de Diff</h3>
+                            <p style="font-size: 0.82rem; color: #94a3b8; margin: 0;">Baixe as listas individuais em CSV ou o relatório consolidado em Excel com 4 abas.</p>
+                        </div>
+                        <button id="btn-download-excel" class="btn-primary" style="background: #059669; border-color: #10b981; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem;">
+                            <span>Planilha Excel Completa (.xlsx - 4 Abas)</span>
+                        </button>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">
+                        <button id="btn-download-csv-1" class="btn-secondary" style="font-size: 0.82rem; text-align: left; padding: 0.6rem 0.8rem; background: #1e293b;">
+                            <strong>1. Inst. Novas (.csv)</strong>
+                        </button>
+                        <button id="btn-download-csv-2" class="btn-secondary" style="font-size: 0.82rem; text-align: left; padding: 0.6rem 0.8rem; background: #1e293b;">
+                            <strong>2. Alt. Cadastrais (.csv)</strong>
+                        </button>
+                        <button id="btn-download-csv-3" class="btn-secondary" style="font-size: 0.82rem; text-align: left; padding: 0.6rem 0.8rem; background: #1e293b;">
+                            <strong>3. Inst. Inativadas (.csv)</strong>
+                        </button>
+                        <button id="btn-download-csv-4" class="btn-secondary" style="font-size: 0.82rem; text-align: left; padding: 0.6rem 0.8rem; background: #1e293b;">
+                            <strong>4. Ofertas de Cursos (.csv)</strong>
+                        </button>
+                    </div>
+                </div>
+
                 <label style="color: #cbd5e1; font-weight: 600; font-size: 0.9rem;">Diagnóstico Descritivo em Texto:</label>
                 <div id="text-diagnosis-body" class="diagnosis-card"></div>
                 
