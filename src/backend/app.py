@@ -69,7 +69,13 @@ async def startup_event():
     loop = asyncio.get_running_loop()
     ws_manager.set_main_loop(loop)
 
-# 3. Incluir rotas modulares protegidas por Autenticacao
+# 3. Rota pública de Healthcheck (para Docker / Coolify sem JWT)
+@app.get("/health", status_code=200)
+@app.get("/api/health", status_code=200)
+def health_check():
+    return {"status": "ok", "service": "cnct-scraper"}
+
+# 4. Incluir rotas modulares protegidas por Autenticacao
 app.include_router(scraper_router, dependencies=[Depends(require_auth_dependency)])
 app.include_router(data_router, dependencies=[Depends(require_auth_dependency)])
 app.include_router(migracao_router, dependencies=[Depends(require_auth_dependency)])

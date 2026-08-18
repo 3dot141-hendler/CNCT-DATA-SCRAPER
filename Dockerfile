@@ -27,9 +27,9 @@ RUN gcc -O3 -Wall src/c_aggregator/aggregator.c -o src/c_aggregator/aggregator &
 # Expõe a porta 8000 da API FastAPI
 EXPOSE 8000
 
-# Healthcheck nativo para o Coolify validar a saúde da aplicação no deploy automático
+# Healthcheck nativo consultando a rota pública /health (sem JWT) para o Coolify validar o container
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8000/api/migracao/status || exit 1
+    CMD curl -f http://localhost:8000/health || exit 1
 
 # Comando de inicialização do servidor Uvicorn
 CMD ["uvicorn", "src.backend.app:app", "--host", "0.0.0.0", "--port", "8000"]
