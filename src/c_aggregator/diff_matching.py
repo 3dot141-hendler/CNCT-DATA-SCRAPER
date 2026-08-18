@@ -45,6 +45,7 @@ class DiffEngine:
         db_by_tokens_uf = {}
         db_by_cep_num = {}
         db_by_street_num = {}
+        db_by_core_name = {}
 
         # 1. Pré-computação de Índices Hash em O(1)
         for item in db_data:
@@ -101,6 +102,9 @@ class DiffEngine:
                 c_uf_key = f"{core_name}_{uf_clean}"
                 db_by_core_uf.setdefault(c_uf_key, []).append(entry)
 
+            if core_name and len(core_name) >= 5:
+                db_by_core_name.setdefault(core_name, []).append(entry)
+
             if tokens_key and len(tokens_key) >= 6 and uf_clean:
                 t_uf_key = f"{tokens_key}_{uf_clean}"
                 db_by_tokens_uf.setdefault(t_uf_key, []).append(entry)
@@ -141,26 +145,26 @@ class DiffEngine:
             if (not c_nome or c_nome.lower() in ('sem nome', 'não informado', 'n/i', 'none')) and (not c_end or c_end.lower() in ('não informado', 'n/i', 'none', '')):
                 continue
             
-            c_muni_raw = (csv_item.get('municipio') or csv_item.get('cidade') or "").strip()
-            c_muni_clean, ext_uf_c, ext_cep_c = extract_muni_uf_cep(c_muni_raw)
-            c_uf = (csv_item.get('uf') or ext_uf_c or "").strip()
+            c_muni = (csv_item.get('municipio') or csv_item.get('cidade') or "").strip()
+            c_muni_clean, ext_uf_c, ext_cep_c = extract_muni_uf_cep(c_muni)
+            c_uf = clean_text_accents(csv_item.get('uf') or "").upper()[:2]
+            c_uf_clean = c_uf or ext_uf_c or ""
             
             if c_end:
-                parsed_c = parse_address_c(c_end, native_muni=c_muni_clean, native_uf=c_uf)
+                parsed_c = parse_address_c(c_end, native_muni=c_muni_clean, native_uf=c_uf_clean)
                 parsed_muni = parsed_c.get('municipio')
                 if parsed_muni:
                     norm_parsed = clean_text_accents(parsed_muni)
                     norm_muni = clean_text_accents(c_muni_clean)
                     if not c_muni_clean or len(norm_parsed) > len(norm_muni) or norm_parsed.startswith(norm_muni):
                         c_muni_clean = parsed_muni
-                if not c_uf: c_uf = parsed_c.get('uf') or ""
+                if not c_uf_clean: c_uf_clean = parsed_c.get('uf') or ""
 
             c_muni_norm = normalize_muni_name(c_muni_clean)
             c_core_name = normalize_core_name(c_nome)
-            c_full_key = normalize_natural_key(c_nome, c_muni_clean, c_uf)
+            c_full_key = normalize_natural_key(c_nome, c_muni_clean, c_uf_clean)
             c_name_clean = expand_abbreviations(c_nome)
             c_tokens_key = cls._extract_name_tokens(c_name_clean)
-            c_uf_clean = clean_text_accents(c_uf).upper()[:2]
 
             matched_entry = None
 
@@ -214,6 +218,13 @@ class DiffEngine:
                 if key_lvl6 in db_by_street_num:
                     candidates = [cand for cand in db_by_street_num[key_lvl6] if id(cand['db_item']) not in matched_db_objects]
                     if len(candidates) >= 1:
+                        matched_entry = candidates[0]
+
+            # Nível 6.5: Pareamento por Núcleo do Nome Único (Resgate de Endereços Truncados do MEC sem Município/UF)
+            if not matched_entry and c_core_name and len(c_core_name) >= 5:
+                if c_core_name in db_by_core_name:
+                    candidates = [cand for cand in db_by_core_name[c_core_name] if id(cand['db_item']) not in matched_db_objects]
+                    if len(candidates) == 1:
                         matched_entry = candidates[0]
 
             # Nível 7 (Fallback Duplicatas MEC)
@@ -327,9 +338,10 @@ class DiffEngine:
                         elif not cep_db_raw and diferencas:
                             diferencas.append(f"cep: '' ➔ '{c_cep_clean}'")
 
-                    # 4. Divergência de Endereço
-                    if norm_end_csv and norm_end_db and norm_end_csv != norm_end_db and len(end_csv_clean) >= int(len(end_db_clean) * 0.80):
-                        diferencas.append(f"endereco: '{end_db_clean}' ➔ '{end_csv_clean}'")
+                    # 4. Divergência de Endereço (ignora se o endereço do CSV for apenas um trecho truncado contido no BD)
+                    if norm_end_csv and norm_end_db and norm_end_csv != norm_end_db and not (norm_end_csv in norm_end_db):
+                        if len(end_csv_clean) >= int(len(end_db_clean) * 0.80):
+                            diferencas.append(f"endereco: '{end_db_clean}' ➔ '{end_csv_clean}'")
 
                     csv_item['municipio'] = c_muni_clean
                     csv_item['uf'] = c_uf_clean

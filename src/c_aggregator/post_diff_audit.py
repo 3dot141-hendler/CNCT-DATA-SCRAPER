@@ -96,6 +96,15 @@ class PostDiffAuditor:
                         match_reason = f"Tokens específicos do nome ({', '.join(common_words)}) coincidentes na VPS em {n_muni}"
                         break
 
+            # Passo 4: Busca por Núcleo do Nome Único na VPS (para resgatar itens com município/UF truncados no MEC)
+            if not matched_audit_db:
+                from src.c_aggregator.text_normalizer import normalize_core_name
+                n_core = normalize_core_name(n_nome)
+                if n_core and len(n_core) >= 5:
+                    same_core_candidates = [e['db_item'] for e in db_items_list if normalize_core_name(e['nome']) == n_core]
+                    if len(same_core_candidates) == 1:
+                        matched_audit_db = same_core_candidates[0]
+
             if matched_audit_db:
                 db_id = matched_audit_db.get('id') or matched_audit_db.get('snowflake_id')
                 csv_novo['is_novo'] = False
